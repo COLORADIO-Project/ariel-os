@@ -1,0 +1,4 @@
+apps:
+  - name: mpu6050
+    context:
+      - esp32c6

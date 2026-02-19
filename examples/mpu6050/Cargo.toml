@@ -1,0 +1,21 @@
+[package]
+name = "mpu6050"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { path = "../../src/ariel-os", features = [
+  "i2c",
+  "sensors",
+  "time",
+] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
+ariel-os-sensor-mpu6050 = { path = "../../src/sensors/ariel-os-sensor-mpu6050" }
+ariel-os-sensors = { workspace = true }
+
+embassy-sync = { workspace = true }
+once_cell = { workspace = true }
+
+[lints]
+workspace = true
