@@ -214,7 +214,7 @@ impl<I2C: Send> Sensor for Mpu6050Sensor<I2C> {
     }
 
     fn categories(&self) -> &'static [Category] {
-        &[Category::AccelerometerGyroscope]
+        &[Category::AccelerometerGyroscopeTemperature]
     }
 
     fn reading_channels(&self) -> ReadingChannels {
