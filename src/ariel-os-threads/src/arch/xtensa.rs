@@ -46,7 +46,7 @@ impl Arch for Cpu {
         // The xtensa-lx-rt does this when calling the exception handler using
         // call4, which shifts the window by 4.
         // See `xtensa_lx_rt::exception::asm::__default_naked_exception`.
-        thread.data.A4 = cleanup as u32;
+        thread.data.A4 = cleanup as *const () as u32;
         thread.data.PC = func as u32;
 
         // Copied from esp-wifi::preempt::preempt_xtensa

@@ -87,11 +87,8 @@ pub(crate) fn config() -> embassy_net::Config {
                 fn __ariel_os_network_config() -> embassy_net::Config;
             }
             unsafe { __ariel_os_network_config() }
-        } else if #[cfg(feature = "dhcpv4")] {
-            embassy_net::Config::dhcpv4(embassy_net::DhcpConfig::default())
-        } else if #[cfg(not(context = "ariel-os"))] {
-            // For platform-independent tooling.
-            embassy_net::Config::default()
+        } else {
+            ariel_os_network_config()
         }
     }
 }
@@ -171,15 +168,9 @@ impl embassy_net::driver::RxToken for DummyDriver {
     }
 }
 
-#[cfg(any(
-    feature = "network-config-ipv4-static",
-    feature = "network-config-ipv6-static"
-))]
-// SAFETY: the compiler prevents from defining multiple functions with the same name in the
-// same crate; the function signature is checked by the compiler as it is in the same crate as the
-// FFI declaration.
-#[unsafe(no_mangle)]
-fn __ariel_os_network_config() -> embassy_net::Config {
+#[cfg(not(feature = "network-config-override"))]
+fn ariel_os_network_config() -> embassy_net::Config {
+    #[allow(unused_mut, reason = "conditional compilation")]
     let mut config = embassy_net::Config::default();
 
     cfg_if::cfg_if! {
@@ -212,7 +203,11 @@ fn __ariel_os_network_config() -> embassy_net::Config {
 
             config.ipv4 = embassy_net::ConfigV4::Static(embassy_net::StaticConfigV4 {
                 address: embassy_net::Ipv4Cidr::new(ipaddr, PREFIX_LEN),
-                dns_servers: heapless::Vec::new(),
+                #[expect(
+                    clippy::default_trait_access,
+                    reason = "This allows us to not import heapless (and not worry about its version)."
+                )]
+                dns_servers: Default::default(),
                 gateway: Some(gw_addr),
             });
         } else if #[cfg(feature = "dhcpv4")] {
@@ -246,7 +241,11 @@ fn __ariel_os_network_config() -> embassy_net::Config {
 
         config.ipv6 = embassy_net::ConfigV6::Static(embassy_net::StaticConfigV6 {
             address: embassy_net::Ipv6Cidr::new(ipaddr, PREFIX_LEN),
-            dns_servers: heapless::Vec::new(),
+            #[expect(
+                clippy::default_trait_access,
+                reason = "This allows us to not import heapless (and not worry about its version)."
+            )]
+            dns_servers: Default::default(),
             gateway: Some(gw_addr),
         });
     }

@@ -68,7 +68,7 @@ Setting up a suitable interface depends on your platform and preferred configura
 At the time of writing, the tap implementation is limited to Linux.
 
 
-[native-builder-support]: ./boards/native.html
+[native-builder-support]: ./boards/native.md
 [laze-builders-book]: ./build-system.md#laze-builders
 [laze-tasks-book]: ./build-system.md#laze-tasks
 [multithreading-book]: ./multithreading.md

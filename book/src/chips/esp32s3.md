@@ -15,9 +15,9 @@
 |SPI Main Mode|<span title="needs testing">🚦</span>|
 |UART|<span title="supported">✅</span>|
 |User USB|<span title="supported">✅</span>|
-|Ethernet over USB|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>|
+|Ethernet over USB|<span title="supported">✅</span>|
 |Wi-Fi|<span title="supported">✅</span>|
-|Bluetooth Low Energy|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>|
+|Bluetooth Low Energy|<span title="supported">✅</span>|
 |Hardware Random Number Generator|<span title="supported">✅</span>|
 |Persistent Storage|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>[^requires-partitioning-support]|
 
@@ -92,14 +92,35 @@ Boards using this chip.
 		  <td class="support-cell" title="needs testing">🚦</td>
 		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="supported">✅</td>
-		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
 		  <td class="support-cell" title="supported">✅</td>
-		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
       </tr>
 	  </tbody>
 	<tbody class="even">
+      <tr>
+	    <td rowspan="2"><a href="../boards/unihiker-k10.html">Unihiker K10</a></td>
+	  </tr>
+	  <tr>
+	    <td><code>unihiker-k10</code></td>
+		<td style="text-align: center;">2</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="needs testing">🚦</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
+      </tr>
+	  </tbody>
+	<tbody class="odd">
       <tr>
 	    <td rowspan="2"><a href="../boards/heltec-wifi-lora-32-v3.html">Heltec WiFi LoRa 32 V3</a></td>
 	  </tr>
@@ -113,9 +134,9 @@ Boards using this chip.
 		  <td class="support-cell" title="needs testing">🚦</td>
 		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="not available on this piece of hardware">–</td>
-		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
+		  <td class="support-cell" title="not available on this piece of hardware">–</td>
 		  <td class="support-cell" title="supported">✅</td>
-		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
+		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="supported">✅</td>
 		  <td class="support-cell" title="available in hardware, but not currently supported by Ariel OS">❌</td>
       </tr>
@@ -161,7 +182,6 @@ dt, dd {
   display: inline;
 }
 </style>
-
 
 
 

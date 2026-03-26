@@ -1,3 +1,5 @@
+#![allow(unused, reason = "used by documentation only")]
+
 use embassy_executor::SpawnToken;
 
 #[doc(hidden)]
@@ -30,5 +32,7 @@ impl Spawner {
     pub fn spawn<S>(&self, _token: SpawnToken<S>) -> Result<(), ()> {
         unimplemented!();
     }
+
+    #[allow(clippy::unused_self)]
     pub fn must_spawn<S>(&self, _token: SpawnToken<S>) {}
 }

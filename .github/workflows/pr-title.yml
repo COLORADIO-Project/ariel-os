@@ -4,6 +4,8 @@ on:
   pull_request:
     types: [opened, edited, reopened]
 
+permissions: {}
+
 jobs:
   pr-title:
     name: Lint PR Title
@@ -12,9 +14,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install committed
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: committed
 

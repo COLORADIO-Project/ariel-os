@@ -3,7 +3,7 @@ apps:
     env:
       global:
         executor_stacksize_required:
-          - "32768"
+          - "65536"
     selects:
       - network
       - random
@@ -11,3 +11,4 @@ apps:
       - ram-small
       # not enough ram
       - context::esp32s2
+      - context::stm32l475vg

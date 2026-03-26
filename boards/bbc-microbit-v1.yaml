@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   bbc-microbit-v1:
     chip: nrf51822-xxaa
     buttons:

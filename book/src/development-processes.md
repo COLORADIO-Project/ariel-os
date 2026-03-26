@@ -79,6 +79,16 @@ The following steps must be followed when preparing a new release of `ariel-os`:
 1. Verify there are no [release blocking bugs](https://github.com/ariel-os/ariel-os/issues?q=state%3Aopen%20label%3Arelease-blocker).
 1. Update the roadmap if necessary.
 1. Check whether deprecated items should be removed, if any.
+1. Update the changelog using [changelog-harvester][changelog-harvester-cratesio] and the following command (see its documentation for details):
+   ```sh
+   changelog-harvester --with-token --forge-owner 'ariel-os' --forge-repo 'ariel-os' --labels 'changelog:highlight,breaking,changelog:new-hardware,changelog:sensor,changelog:skip' --old '<previous-version>' --new '<new-version>' < ../token.txt
+   ```
+   `<previous-version>` and `<new-version>` must be replaced with references (or commit IDs) to the previous and new versions respectively (the new version's reference may be `upstream/main` assuming `upstream` is the name of the remote associated to the `ariel-os/ariel-os` repository).
+   An authentication token must also be provided (through the `token.txt` file in the command above), see the documentation for details.
+
+   The above command will output entries in Markdown format that need to be manually made to fit into the existing Keep-a-Changelog template.
+   The title of the PR updating the changelog should start with `chore(release):` (so it could automatically be ignored by other tools later).
+
 1. Update the version numbers of the crates that need to be bumped.
 
     > [!IMPORTANT]
@@ -89,21 +99,14 @@ The following steps must be followed when preparing a new release of `ariel-os`:
     > - The `ariel-os-sensors-utils` crate's version is also decoupled from the rest of the OS.
     > - There might be other crates whose versions are decoupled from the rest of the OS; do **check the manifests** for such an indication before bumping.
 
-1. Update the changelog using [changelog-harvester][changelog-harvester-cratesio] and the following command (see its documentation for details):
-   ```sh
-   changelog-harvester --with-token --forge-owner 'ariel-os' --forge-repo 'ariel-os' --labels 'changelog:highlight,breaking,changelog:new-hardware,changelog:sensor,changelog:skip' --old '<previous-version>' --new '<new-version>' < ../token.txt
-   ```
-   `<previous-version>` and `<new-version>` must be replaced with references (or commit IDs) to the previous and new versions respectively (the new version's reference may be `upstream/main` assuming `upstream` is the name of the remote associated to the `ariel-os/ariel-os` repository).
-   An authentication token must also be provided (through the `token.txt` file in the command above), see the documentation for details.
-
-   The above command will output entries in Markdown format that need to be manually made to fit into the existing Keep-a-Changelog template.
-   The title of the PR updating the changelog should start with `chore(release):` (so it could automatically be ignored by other tools later).
+1. Update the [ariel-os docs repository][ariel-os-docs-repo] with the new docs.
 1. Create a git tag in the format `v{version}`.
 1. No `ariel-os*` crates are currently published on [crates.io][crates-io].
 1. Update the templates in [`ariel-os-hello`][ariel-os-hello-repo] (including the lockfile) and [`ariel-os-template`][ariel-os-template-repo] to use the new tag.
 
 [ariel-os-hello-repo]: https://github.com/ariel-os/ariel-os-hello
 [ariel-os-template-repo]: https://github.com/ariel-os/ariel-os-template
+[ariel-os-docs-repo]: https://github.com/ariel-os/docs
 [issue-label-breaking]: https://github.com/ariel-os/ariel-os/issues?q=state%3Aopen%20label%3Abreaking
 [issue-label-changelog-highlight]: https://github.com/ariel-os/ariel-os/issues?q=state%3Aopen%20label%3Achangelog%3Ahighlight
 [issue-label-changelog-skip]: https://github.com/ariel-os/ariel-os/issues?q=state%3Aopen%20label%3Achangelog%3Askip

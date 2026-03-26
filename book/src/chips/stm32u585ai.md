@@ -80,6 +80,27 @@ Boards using this chip.
   <tbody>
 	<tbody class="odd">
       <tr>
+	    <td rowspan="2"><a href="../boards/arduino-uno-q.html">Arduino UNO Q</a></td>
+	  </tr>
+	  <tr>
+	    <td><code>arduino-uno-q</code></td>
+		<td style="text-align: center;">2</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="not available on this piece of hardware">–</td>
+		  <td class="support-cell" title="not available on this piece of hardware">–</td>
+		  <td class="support-cell" title="not available on this piece of hardware">–</td>
+		  <td class="support-cell" title="not available on this piece of hardware">–</td>
+		  <td class="support-cell" title="supported">✅</td>
+		  <td class="support-cell" title="supported with some caveats">☑️</td>
+      </tr>
+	  </tbody>
+	<tbody class="even">
+      <tr>
 	    <td rowspan="2"><a href="../boards/st-steval-mkboxpro.html">ST STEVAL-MKBOXPRO</a></td>
 	  </tr>
 	  <tr>
@@ -140,7 +161,6 @@ dt, dd {
   display: inline;
 }
 </style>
-
 
 
 

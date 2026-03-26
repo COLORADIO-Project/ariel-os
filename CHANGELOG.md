@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- next-header -->
 
+## [0.4.0] - 2026-03-18
+
+### Release Highlights
+
+- Ariel OS's MSRV is now 1.94. This version stabilizes Cargo's config `include` key, allowing Ariel OS's configuration to be discovered automatically by Cargo, without the need for either providing `--config` or using the nightly version of Cargo, including in out-of-tree applications. ([#1865](https://github.com/ariel-os/ariel-os/pull/1865))
+- (Xtensa) The toolchain for Xtensa targets has been bumped to 1.94.0.2. ([#1911](https://github.com/ariel-os/ariel-os/pull/1911))
+- The minimum required laze version is now 0.1.39. This internally allows to use Cargo's output directly without copying to a file with the `.elf` extension. ([#1896](https://github.com/ariel-os/ariel-os/pull/1896))
+- (ESP32) BLE is now supported on ESP32 MCUs, and exposed through the [existing BLE API](https://ariel-os.github.io/ariel-os/0.4.0/docs/book/bluetooth.html). ([#1869](https://github.com/ariel-os/ariel-os/pull/1869))
+
+### Breaking Changes
+
+- The variant of the `IntoPeripheral` trait that is used only for documentation is now sealed. It should never be implemented on anything outside of Ariel OS. ([#1910](https://github.com/ariel-os/ariel-os/pull/1910))
+- (ESP32-C3) Support for the undocumented `ai-c3` board has been removed, as it was unclear what board this was. ([#1912](https://github.com/ariel-os/ariel-os/pull/1912))
+- Timing functionality is now not indirectly enabled by enabling networking anymore. Applications that were relying on this simply need to enable the `time` Cargo feature. ([#1897](https://github.com/ariel-os/ariel-os/pull/1897))
+- `embassy-net` has been updated to v0.8.0: the [network stack](https://ariel-os.github.io/ariel-os/0.4.0/docs/api/ariel_os/net/type.NetworkStack.html) is now provided by that version, which is a breaking change. The crate is re-exported from `ariel_os::reexports`. ([#1653](https://github.com/ariel-os/ariel-os/pull/1653))
+- The `embassy-time` time driver is now *only* provided by HALs when the already-existing `time` Cargo feature is enabled. Existing applications that relied on it being always enabled will need to select that Cargo feature. ([#1809](https://github.com/ariel-os/ariel-os/pull/1809))
+- (nRF) The protection circuit on NFC pins has been re-enabled, disabling the GPIO functionality on them. If needed, GPIO functionality can be re-enabled out of tree by enabling `embassy-nrf`'s `nfc-pins-as-gpio` Cargo feature. ([#1857](https://github.com/ariel-os/ariel-os/pull/1857))
+- (STM32U083C-DK) All three LEDs are now supported and ordered according to the on-board labeling. Notably, `led0` changed from the blue LD4 LED to the green LD3 LED. ([#1856](https://github.com/ariel-os/ariel-os/pull/1856))
+- The `network-config-override` Cargo feature has been removed from the documentation, as it was not possible to actually use it, and has been replaced by the laze module of the same name, which must be used instead. ([#1612](https://github.com/ariel-os/ariel-os/pull/1612))
+- A lifetime generic has been introduced on `ariel_os::i2c::controller::I2cDevice`. This avoids the need for storing it in a global `OnceCell` (or similar) inside applications. It is a breaking change but should not require changes to many existing applications in practice. ([#1793](https://github.com/ariel-os/ariel-os/pull/1793))
+- A lifetime generic has been introduced on `ariel_os::spi::main::SpiDevice`. This avoids the need for storing it in a global `OnceCell` (or similar) inside applications. It is a breaking change but should not require changes to many existing applications in practice. ([#1790](https://github.com/ariel-os/ariel-os/pull/1790))
+- `ariel_os::reexports::ble` has been removed. This export was misplaced and was not adding functionality. ([#1788](https://github.com/ariel-os/ariel-os/pull/1788))
+
+### Fixed
+
+- The internal runtime loop is now not busy-looping anymore when using the `executor-interrupt` flavor. This may bring significant power consumption improvements when using that executor flavor. ([#1808](https://github.com/ariel-os/ariel-os/pull/1808))
+- Dependency on `embedded-nal-coap` has been pinned due to its alpha status and known breakage in its version `0.1.0-alpha.6`. ([#1812](https://github.com/ariel-os/ariel-os/pull/1812))
+- It has been clarified in the documentation that `network-config-*` laze modules must come before the `network` laze module. ([#1796](https://github.com/ariel-os/ariel-os/pull/1796))
+
+### Added
+
+- The book now states that `defmt` is the default logger when available for the target. ([#1916](https://github.com/ariel-os/ariel-os/pull/1916))
+- Facilities for measuring stack usage, using stack painting, have been added. ([#1538](https://github.com/ariel-os/ariel-os/pull/1538))
+- The `network` laze module is now automatically enabled by network-link laze modules (e.g., `usb-ethernet`, `wifi-esp`). ([#1895](https://github.com/ariel-os/ariel-os/pull/1895))
+- (ESP32) USB CDC-NCM (Ethernet over USB) is now supported on ESP32-S2 and ESP32-S3. ([#1785](https://github.com/ariel-os/ariel-os/pull/1785))
+- A sensor extension has been added, `GnssTimeExt`, that allows to read the time and date from a GNSS sensor. ([#1683](https://github.com/ariel-os/ariel-os/pull/1683))
+- CI workflows are now checked for security issues with [zizmor](https://docs.zizmor.sh/), a static analysis tool for Github Actions. ([#1738](https://github.com/ariel-os/ariel-os/pull/1738))
+- (nRF91) The nRF91xx MCUs can now be initialized in DECT-2020 NR+ mode. ([#1819](https://github.com/ariel-os/ariel-os/pull/1819))
+- The porting guide has been updated to mention that new laze builders also need to be added to the support information when adding new boards to it. ([#1813](https://github.com/ariel-os/ariel-os/pull/1813))
+- (STM32) It is now possible to provide an RCC configuration from out-of-tree applications, allowing in particular to adjust the clock configuration to the board and the application. ([#1389](https://github.com/ariel-os/ariel-os/pull/1389))
+- The book's glossary has been corrected and expanded. ([#1745](https://github.com/ariel-os/ariel-os/pull/1745))
+- The documentation about adding a new MCU has been updated to include the file `ariel-chips.yaml`. ([#1772](https://github.com/ariel-os/ariel-os/pull/1772))
+
+### Changed
+
+- Timer-related log statements have been demoted from `debug` to `trace` log level. ([#1906](https://github.com/ariel-os/ariel-os/pull/1906))
+- The `featurecomb` dependency has been updated to v0.2.0. It has been relicensed to MIT OR Apache-2.0 (from MPL-2.0). ([#1873](https://github.com/ariel-os/ariel-os/pull/1873))
+
+### New Supported Hardware
+
+- The STM32WBA65RI MCU and the ST NUCLEO-WBA65RI board are now supported. ([#1771](https://github.com/ariel-os/ariel-os/pull/1771))
+- The Seeed Studio XIAO nRF52840 Plus board is now supported. ([#1817](https://github.com/ariel-os/ariel-os/pull/1817))
+- The STM32F303CB and STM32F303RE MCUs and the ST NUCLEO-F303RE board are now supported. ([#1781](https://github.com/ariel-os/ariel-os/pull/1781))
+
 ## [0.3.0] - 2026-02-02
 
 ### Release Highlights
@@ -169,7 +223,8 @@ internal polish that is not mentioned here.
 ## [0.1.0] - 2025-02-25
 
 <!-- next-url -->
-[Unreleased]: https://github.com/ariel-os/ariel-os/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ariel-os/ariel-os/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ariel-os/ariel-os/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ariel-os/ariel-os/compare/v0.2.0...v0.3.0
 [0.2.1]: https://github.com/ariel-os/ariel-os/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ariel-os/ariel-os/compare/v0.1.0...v0.2.0

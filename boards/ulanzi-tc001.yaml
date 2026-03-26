@@ -1,0 +1,25 @@
+version: 0.3.0
+targets:
+  ulanzi-tc001:
+    chip: esp32-wroom-32d
+    buttons:
+      button0:
+        pin: GPIO26
+        active: low
+        aliases:
+          - left
+      button1:
+        pin: GPIO27
+        active: low
+        aliases:
+          - middle
+      button2:
+        pin: GPIO14
+        active: low
+        aliases:
+          - right
+    quirks:
+      - type: set_pin
+        description: turn off buzzer
+        pin: GPIO15
+        level: low

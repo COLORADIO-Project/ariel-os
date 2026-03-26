@@ -4,7 +4,7 @@
 
 ### Item Order in Rust Modules
 
-Items SHOULD appear in Rust modules in the following order, based on [the one used by rust-analyzer](https://rust-analyzer.github.io/manual.html#auto-import):
+Items SHOULD appear in Rust modules in the following order, based on [the one used by rust-analyzer](https://web.archive.org/web/20241228143509/https://rust-analyzer.github.io/manual.html#auto-import):
 
 1. Inner doc comment
 1. [Inner attributes](https://doc.rust-lang.org/reference/attributes.html)
@@ -28,7 +28,7 @@ TODO: how to organize type definitions w.r.t. related logic?
 
 ### Imports
 
-Imports from the same crate with the same visibility MUST be [merged into a single use statement](https://rust-analyzer.github.io/manual.html#auto-import).
+Imports from the same crate with the same visibility MUST be [merged into a single use statement](https://web.archive.org/web/20241228143509/https://rust-analyzer.github.io/manual.html#auto-import).
 
 #### Imports from Re-exports
 
@@ -71,7 +71,7 @@ This is useful for readers, to quickly access the mentioned item, but it also he
 Code containing `unsafe` is denied outside of modules where the [`unsafe-code`](https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html#unsafe-code) lint is explicitly `#[expect]`ed
 (or, in complex situations, `#[allow]`ed).
 
-For all `unsafe` blocks, a `SAFETY` comment MUST be added, in the style [of the `undocumented-unsafe-blocks` Clippy lint](https://rust-lang.github.io/rust-clippy/master/index.html#/undocumented_unsafe_blocks).
+For all `unsafe` blocks, a `SAFETY` comment MUST be added, in the style [of the `undocumented-unsafe-blocks` Clippy lint](https://rust-lang.github.io/rust-clippy/master/index.html#undocumented_unsafe_blocks).
 
 Any `unsafe` function MUST be documented with the preconditions for sound use in a `# Safety` section, in the [style of the `missing-safety-doc` Clippy lint](https://rust-lang.github.io/rust-clippy/master/index.html#missing_safety_doc).
 

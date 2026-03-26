@@ -7,6 +7,7 @@
 ## laze Builders
 
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
+
 ### `nordic-thingy-91-x-nrf9151`
 
 - **Tier:** 2
@@ -35,6 +36,7 @@ laze build -b nordic-thingy-91-x-nrf9151
 |Bluetooth Low Energy|<span title="not available on this piece of hardware">–</span>|
 |Hardware Random Number Generator|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>[^only-available-through-the-cryptocell]|
 |Persistent Storage|<span title="supported">✅</span>|
+
 ### `nordic-thingy-91-x-nrf5340-app`
 
 - **Tier:** 2
@@ -63,6 +65,7 @@ laze build -b nordic-thingy-91-x-nrf5340-app
 |Bluetooth Low Energy|<span title="not available on this piece of hardware">–</span>|
 |Hardware Random Number Generator|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>[^no-standalone-rng-in-the-application-core-only-in-the-cryptocell-which-is-not-currently-supported]|
 |Persistent Storage|<span title="supported">✅</span>|
+
 ### `nordic-thingy-91-x-nrf5340-net`
 
 - **Tier:** 2

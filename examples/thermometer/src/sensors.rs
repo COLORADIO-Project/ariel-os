@@ -10,7 +10,7 @@ pub async fn init() {
 mod stts22h {
     use ariel_os::i2c::controller::I2cDevice;
 
-    pub static STTS22H_I2C: ariel_os_sensor_stts22h::i2c::Stts22h<I2cDevice> =
+    pub static STTS22H_I2C: ariel_os_sensor_stts22h::i2c::Stts22h<I2cDevice<'_>> =
         const { ariel_os_sensor_stts22h::i2c::Stts22h::new(Some("onboard")) };
     #[ariel_os::reexports::linkme::distributed_slice(ariel_os::sensors::SENSOR_REFS)]
     #[linkme(crate = ariel_os::reexports::linkme)]

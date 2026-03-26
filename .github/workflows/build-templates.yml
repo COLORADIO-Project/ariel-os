@@ -8,6 +8,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: ${{ github.head_ref || github.run_id }}-build-templates
   cancel-in-progress: true
@@ -42,7 +44,7 @@ jobs:
           espup install
 
       - name: Install cargo-generate
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: cargo-generate
 

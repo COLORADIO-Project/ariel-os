@@ -14,18 +14,6 @@ It is also recommended to use the the `Even Better TOML` exentsion to have TOML 
 
 This is meant to be used on projects created using the `cargo-generate` command in the getting-started guide. The configuration works by targeting one [laze builder][laze-builders-book], avoiding the linter to be confused about double declarations.
 
-You will need to have a nightly version of Rust installed, you can install the latest one using:
-
-```sh
-rustup toolchain install nightly
-```
-
-Then install configure the toolchain by running this at the root of your project:
-
-```sh
-laze build -D CARGO_TOOLCHAIN=+nightly install-toolchain
-```
-
 To generate/update your vscode configuration in `.vscode/settings.json`, run in the root of your project:
 
 ```sh

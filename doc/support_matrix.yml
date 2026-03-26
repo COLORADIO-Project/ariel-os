@@ -286,7 +286,7 @@ chips:
           - requires partitioning support
       wifi:
         status: supported
-      ble: not_currently_supported
+      ble: supported
       user_usb:
         status: not_available
         comments:
@@ -311,7 +311,7 @@ chips:
           - requires partitioning support
       wifi:
         status: supported
-      ble: not_currently_supported
+      ble: supported
       user_usb:
         status: not_available
         comments:
@@ -335,7 +335,7 @@ chips:
           - requires partitioning support
       wifi:
         status: supported
-      ble: not_currently_supported
+      ble: supported
       user_usb:
         status: not_available
         comments:
@@ -360,7 +360,7 @@ chips:
           - requires partitioning support
       wifi:
         status: supported
-      ble: not_currently_supported
+      ble: supported
       user_usb:
         status: not_available
         comments:
@@ -382,9 +382,8 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      user_usb:
-        status: supported
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
       ble: not_available
 
@@ -404,9 +403,8 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      user_usb:
-        status: supported
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
       ble: not_available
 
@@ -426,9 +424,8 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      user_usb:
-        status: supported
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
       ble: not_available
 
@@ -448,9 +445,8 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      user_usb:
-        status: supported
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
       ble: not_available
 
@@ -469,9 +465,10 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
-      ble: not_currently_supported
+      ble: supported
 
   # Currently identical to esp32s3.
   esp32s3fx8:
@@ -489,10 +486,10 @@ chips:
         status: not_currently_supported
         comments:
           - requires partitioning support
-      user_usb: needs_testing # This should be moved to a board when one is added.
-      ethernet_over_usb: not_currently_supported
+      user_usb: supported
+      ethernet_over_usb: supported
       wifi: supported
-      ble: not_currently_supported
+      ble: supported
 
   stm32c031c6:
     name: STM32C031C6
@@ -781,6 +778,26 @@ chips:
       user_usb: not_available
       ethernet_over_usb: not_available
 
+  stm32wba65ri:
+    name: STM32WBA65RI
+    manufacturer: STMicroelectronics
+    support:
+      gpio: supported
+      debug_output: supported
+      hwrng: supported
+      i2c_controller: not_currently_supported
+      spi_main: not_currently_supported
+      uart: not_currently_supported
+      logging: supported
+      storage:
+        status: supported_with_caveats
+        comments:
+          - removing items not supported
+      wifi: not_available
+      ble: not_currently_supported
+      user_usb: needs_testing
+      ethernet_over_usb: needs_testing
+
   stm32wle5jc:
     name: STM32WLE5JC
     manufacturer: STMicroelectronics
@@ -817,6 +834,38 @@ builders:
     support:
       user_usb: needs_testing
       ethernet_over_usb: needs_testing
+
+  arduino-uno-q:
+    chip: stm32u585ai
+    tier: "2"
+    support:
+      ethernet_over_usb: not_available
+      user_usb:
+        status: not_available
+        comments:
+          - despite having a USB port on the board, it is only usable by the Qualcomm chip
+    notes: |
+      The MCU can be flashed from the Qualcomm chip on the board which runs a Linux system with the [`openocd`](https://openocd.org/) binary ready for use. Install [adb](https://developer.android.com/tools/adb) to communicate with the Qualcomm chip.
+
+      Build your application (in this case the [blinky](https://github.com/ariel-os/ariel-os/tree/main/examples/blinky) example from the Ariel OS repository):
+      ```bash
+      laze -C examples/blinky build -b arduino-uno-q
+      ```
+
+      Then copy the binary onto the Qualcomm chip:
+      ```bash
+      adb push build/bin/arduino-uno-q/cargo/thumbv8m.main-none-eabihf/release/blinky /tmp
+      ```
+
+      Get a shell on the Qualcomm chip:
+      ```bash
+      adb shell
+      ```
+
+      Flash your application onto the STM32 MCU
+      ```bash
+      /opt/openocd/bin/openocd -d3 -s /opt/openocd -f openocd_gpiod.cfg -c 'program /tmp/blinky verify reset exit'
+      ```
 
   bbc-microbit-v1:
     chip: nrf51822-xxaa
@@ -967,18 +1016,25 @@ builders:
     chip: esp32s3
     tier: "1"
     support:
-      user_usb: supported
 
   heltec-wifi-lora-32-v3:
     chip: esp32s3
     tier: "3"
     support:
       user_usb: not_available
+      ethernet_over_usb: not_available
 
   seeedstudio-xiao-esp32c6:
     chip: esp32c6fx4
     tier: "2"
     support:
+
+  seeedstudio-xiao-nrf52840-plus:
+    chip: nrf52840
+    tier: "3"
+    support:
+      user_usb: needs_testing
+      ethernet_over_usb: needs_testing
 
   seeedstudio-lora-e5-mini:
     chip: stm32wle5jc
@@ -1070,6 +1126,11 @@ builders:
     tier: "3"
     support:
 
+  st-nucleo-wba65ri:
+    chip: stm32wba65ri
+    tier: "3"
+    support:
+
   st-steval-mkboxpro:
     chip: stm32u585ai
     tier: "2"
@@ -1081,6 +1142,19 @@ builders:
         status: not_currently_supported
         comments:
           - "[USB does not enumerate](https://github.com/embassy-rs/embassy/issues/2376), [workaround](https://github.com/ariel-os/ariel-os/pull/1126)"
+    notes: |-
+      The `st-steval-mkboxpro` can be flashed using USB DFU and using a debug probe.
+
+      ##### Using USB DFU for Flashing
+
+      After connecting a USB-C cable, start the bootloader with DFU by cycling the power of the microcontroller while pressing button 2 on the side of the case.
+      The microcontroller enumerates as "STMicroelectronics STM Device in DFU Mode" on the host computer.
+      Use the `laze build flash-dfu` task to flash the microcontroller.
+
+      ##### Using a Debug Probe for Flashing
+
+      After opening the case, use the JP2/SWD connector (marked "MCU SWD") with an SWD debug probe (e.g., the STLINK-V3MINIE):
+      do note that JP2 is not keyed, the red wire of the ribbon cable must be closer to the JP2 pin marked "1" on the PCB (close to the POWER switch).
 
   stm32u083c-dk:
     chip: stm32u083mc
@@ -1089,6 +1163,11 @@ builders:
       user_usb: supported
       wifi: not_available
       ethernet_over_usb: supported
+
+  unihiker-k10:
+    chip: esp32s3
+    tier: "2"
+    support:
 
 # Boards are the logical entity that represents the hardware, which can have
 # one or multiple laze builders.
@@ -1102,6 +1181,11 @@ boards:
     url: https://web.archive.org/web/20251022231756/https://www.adafruit.com/product/4516
     builders:
       - adafruit-feather-nrf52840-sense
+
+  - name: Arduino UNO Q
+    url: https://web.archive.org/web/20260315192100/https://docs.arduino.cc/hardware/uno-q/
+    builders:
+      - arduino-uno-q
 
   - name: BBC micro:bit V1
     url: https://web.archive.org/web/20250109121140/https://microbit.org/get-started/features/overview/#original-micro:bit
@@ -1177,7 +1261,7 @@ boards:
       - dfrobot-firebeetle2-esp32-c6
 
   - name: Espressif ESP32-C3-DevKit-RUST-1
-    url: http://web.archive.org/web/20250729095245/https://github.com/esp-rs/esp-rust-board/tree/v1.2
+    url: https://web.archive.org/web/20250729095245/https://github.com/esp-rs/esp-rust-board/tree/v1.2
     builders:
       - espressif-esp32-c3-devkit-rust-1
 
@@ -1210,6 +1294,11 @@ boards:
     url: https://web.archive.org/web/20250827114042/https://wiki.seeedstudio.com/xiao_esp32c6_getting_started/
     builders:
       - seeedstudio-xiao-esp32c6
+
+  - name: Seeed Studio XIAO NRF52840 Plus
+    url: https://web.archive.org/web/20260101232815/https://wiki.seeedstudio.com/XIAO_BLE/
+    builders:
+      - seeedstudio-xiao-nrf52840-plus
 
   - name: Seeed Studio LoRa-E5 mini
     url: https://web.archive.org/web/20250802201959/https://wiki.seeedstudio.com/LoRa_E5_mini/
@@ -1266,6 +1355,11 @@ boards:
     builders:
       - st-nucleo-wba55
 
+  - name: ST NUCLEO-WBA65RI
+    url: https://www.st.com/en/evaluation-tools/nucleo-wba65ri.html
+    builders:
+      - st-nucleo-wba65ri
+
   - name: ST STEVAL-MKBOXPRO
     url: https://web.archive.org/web/20250507145935/https://www.st.com/en/evaluation-tools/steval-mkboxpro.html
     builders:
@@ -1275,3 +1369,8 @@ boards:
     url: https://web.archive.org/web/20250119131656/https://www.st.com/en/evaluation-tools/stm32u083c-dk.html
     builders:
       - stm32u083c-dk
+
+  - name: Unihiker K10
+    url: https://web.archive.org/web/20260207013308/https://www.unihiker.com/products/k10
+    builders:
+      - unihiker-k10

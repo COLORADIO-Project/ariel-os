@@ -36,6 +36,12 @@ Boards using this chip.
 {{ board_matrix_html }}
 {% endif %}
 
+{%- if chip_info.notes %}
+
+## Additional Notes
+
+{{ chip_info.notes }}
+{%- endif %}
 
 {% for functionality in chip_info.functionalities %}
   {%- for comment in functionality.comments %}

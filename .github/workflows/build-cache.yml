@@ -1,0 +1,161 @@
+name: Build-cache
+on:
+  # Can be manually run to update cache.
+  # Trigger this when changing the rust version on the base image.
+  workflow_dispatch:
+    inputs:
+      clear_cache:
+        description: "Don't use the previous cache in order to reduce the storage used by the cache"
+        required: false
+        type: boolean
+  schedule:
+    # run every morning at 1:07am
+    - cron: "7 1 * * *"
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}-build-cache
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # build cache on each garm node
+  build-cache:
+    runs-on: ["self-hosted-ubuntu", "${{ matrix.node }}"]
+
+    strategy:
+      matrix:
+        # Add each CI nodes here
+        node:
+          [
+            "tribe-ariel-ci1",
+            "tribe-ariel-ci2",
+            "tribe-ariel-ci3",
+            "tribe-ariel-ci4",
+          ]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # clang-sys and thus bindgen is sensitive to multiple installed versions
+      # around, see eg. https://github.com/rust-lang/rust-bindgen/issues/2682
+      #
+      # CLANG_PATH should be set to the most recent clang installed, no matter
+      # what /usr/bin/clang is, for some parts of the code will go for the
+      # newest standard library. It may also need to be aligned with the clang
+      # version which Xtensa provides.
+      CLANG_PATH: /usr/bin/clang-18
+
+    steps:
+      - name: reset git-cache update barrier
+        run: pkill -f -SIGUSR1 /usr/local/bin/git-cache-daemon | true
+
+      - name: Check out repository code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+          # we need to access all the commits to know when the file was last modified
+          fetch-depth: 0
+
+      - name: Get git tree hash
+        id: get-tree-hash
+        run: |
+          git rev-parse HEAD^{tree} > .tree-hash
+          echo "hash=$(cat .tree-hash)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        id: result-cache
+        with:
+          path: .tree-hash
+          key: build-cache-success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.node }}
+
+      - name: Whether we should clear the cache
+        id: clear-cache
+        run: |
+          day=$(date +'%u')
+          # Clear the cache on Sundays and when manually selected.
+          if [ "$day" = "7" ] || [ "${{ inputs.clear_cache }}" = "true" ];
+          then
+            echo "result=true" >> $GITHUB_OUTPUT
+          else
+            echo "result=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Whether to skip next steps
+        id: should-skip
+        run: |
+          result="result=${{ steps.result-cache.outputs.cache-hit == 'true' && steps.clear-cache.outputs.result != 'true' }}"
+          echo "${result}"
+          echo "${result}" >> $GITHUB_OUTPUT
+
+      - name: Set nightly fallback key
+        run: echo "FALLBACK_KEY=nightly" >> "$GITHUB_ENV"
+
+      # Instead of deleting the existing cache, we just don't use it and replace it after the build
+      # succeeds, this avoids being left with no cache when the cache build fails.
+      - name: Don't use cache on Sunday
+        if: steps.clear-cache.outputs.result == 'true'
+        run: echo "FALLBACK_KEY=none" >> "$GITHUB_ENV"
+
+      # Allows to reuse more cache
+      - name: Touch file time to commits time
+        if: steps.should-skip.outputs.result != 'true'
+        # https://stackoverflow.com/questions/21735435/git-clone-changes-file-modification-time
+        run: |
+          git ls-tree -r --name-only HEAD | while read filename; do
+            unixtime=$(git log -1 --format="%at" -- "${filename}")
+            touchtime=$(date -d @$unixtime +'%Y%m%d%H%M.%S')
+            touch -t ${touchtime} "${filename}"
+          done
+
+      - name: Cache with post-job cleanup
+        if: steps.should-skip.outputs.result != 'true'
+        uses: gacts/run-and-post-run@81b6ce503cde93862cec047c54652e45c5dca991 # v1
+        with:
+          run: |
+            cache-thing pull -f build -f /home/runner/.cargo/git -f /home/runner/.cargo/registry --prefix global --fallback-key ${FALLBACK_KEY} || true
+
+          post: |
+            export  RUST_LOG=trace
+            cache-thing clean --prefix global || true
+
+      - id: get_toolchain
+        if: steps.should-skip.outputs.result != 'true'
+        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
+
+      - name: "Show installed versions"
+        run: |
+          set -x
+          set +e
+          env
+          llvm-config --libs
+          cargo version
+          laze --version
+          arm-none-eabi-gcc --version
+          clang --version
+          rustup show
+          cat ${ESPUP_EXPORT_FILE:-~/export-esp.sh}
+          (. ${ESPUP_EXPORT_FILE:-~/export-esp.sh}; xtensa-esp32s3-elf-gcc --version)
+          set +x
+          # Check which alternative versions are installed
+          IFS=":"; for p in $PATH; do ls $p/llvm-config-* $p/clang-* 2>/dev/null; done
+          sha256sum /usr/lib/llvm-*/lib/clang/*/include/stdint.h
+          true
+
+      - name: "start sccache daemon"
+        if: steps.should-skip.outputs.result != 'true'
+        # work around https://github.com/ninja-build/ninja/issues/2052
+        run: sccache --start-server || true
+
+      - name: "Build all targets to generate cache data"
+        if: steps.should-skip.outputs.result != 'true'
+        run: |
+          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build -DCARGO_ARGS+='--locked' --global
+
+      - name: show sccache stats
+        run: sccache --show-stats
+
+      - name: "Save cache of nightly run"
+        if: steps.should-skip.outputs.result != 'true'
+        env:
+          RUST_LOG: trace
+        run: |
+          cache-thing push -f build -f /home/runner/.cargo/git -f /home/runner/.cargo/registry --prefix global --fixed-key nightly --only-fixed-key || true

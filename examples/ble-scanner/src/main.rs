@@ -4,18 +4,15 @@
 
 use core::cell::RefCell;
 
+use ariel_os::{debug::log::info, reexports::embassy_time, time::Timer};
 use embassy_futures::join::join;
+use embassy_time::Duration;
 use heapless::Deque;
 use trouble_host::{
     Host,
     connection::{PhySet, ScanConfig},
     prelude::{BdAddr, EventHandler, LeAdvReportsIter},
     scan::Scanner,
-};
-
-use ariel_os::{
-    debug::log::info,
-    time::{Duration, Timer},
 };
 
 #[ariel_os::task(autostart)]

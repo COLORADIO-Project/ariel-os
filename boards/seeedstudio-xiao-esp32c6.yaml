@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   seeedstudio-xiao-esp32c6:
     chip: esp32c6fx4
     leds:

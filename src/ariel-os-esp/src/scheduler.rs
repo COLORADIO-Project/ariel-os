@@ -97,6 +97,13 @@ impl SchedulerImplementation for ArielScheduler {
     ) -> ThreadPtr {
         trace!("task_create()");
 
+        // TODO: report this bug, the task `btController` doesn't respect `max_task_priority`
+        let priority = if priority <= self.max_task_priority() {
+            priority
+        } else {
+            self.max_task_priority()
+        };
+
         // upstream uses 16b as minimum alignment on both architectures
         let stack_slice = alloc_aligned_leaked_buffer(task_stack_size, 16);
 

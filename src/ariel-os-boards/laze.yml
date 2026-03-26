@@ -13,8 +13,15 @@ builders:
   - has_buttons
   - has_leds
   - has_usb_device_port
-- name: ai-c3
-  parent: esp32-c3-mini-1
+- name: arduino-uno-q
+  parent: stm32u585ai
+  provides:
+  - has_leds
+  - has_swi
+  env:
+    CARGO_ENV:
+    - CONFIG_VBUS_DETECTION=false
+    - CONFIG_SWI=USART2
 - name: bbc-microbit-v1
   parent: nrf51822-xxaa
   provides:
@@ -75,6 +82,7 @@ builders:
   provides:
   - has_buttons
   - has_leds
+  - has_usb_device_port
 - name: nordic-thingy-91-x-nrf5340-net
   parent: nrf5340-net
   provides:
@@ -155,6 +163,11 @@ builders:
   provides:
   - has_buttons
   - has_leds
+- name: seeedstudio-xiao-nrf52840-plus
+  parent: nrf52840
+  provides:
+  - has_leds
+  - has_usb_device_port
 - name: st-b-l475e-iot01a
   parent: stm32l475vg
   provides:
@@ -213,7 +226,7 @@ builders:
   parent: stm32f767zi
   provides:
   - has_buttons
-  - has_eth_stm32
+  - has_ethernet_stm32
   - has_leds
   - has_swi
   env:
@@ -223,7 +236,7 @@ builders:
   parent: stm32h753zi
   provides:
   - has_buttons
-  - has_eth_stm32
+  - has_ethernet_stm32
   - has_leds
   - has_swi
   - has_usb_device_port
@@ -234,7 +247,7 @@ builders:
   parent: stm32h755zi
   provides:
   - has_buttons
-  - has_eth_stm32
+  - has_ethernet_stm32
   - has_leds
   - has_swi
   - has_usb_device_port
@@ -260,6 +273,16 @@ builders:
   env:
     CARGO_ENV:
     - CONFIG_SWI=USART2
+- name: st-nucleo-wba65ri
+  parent: stm32wba65ri
+  provides:
+  - has_buttons
+  - has_leds
+  - has_swi
+  - has_usb_device_port
+  env:
+    CARGO_ENV:
+    - CONFIG_SWI=USART1
 - name: st-steval-mkboxpro
   parent: stm32u585ai
   provides:
@@ -281,3 +304,12 @@ builders:
   env:
     CARGO_ENV:
     - CONFIG_SWI=USART4_LPUART3
+- name: ulanzi-tc001
+  parent: esp32-wroom-32d
+  provides:
+  - has_buttons
+- name: unihiker-k10
+  parent: esp32-s3-wroom-1
+  provides:
+  - has_buttons
+  - has_usb_device_port

@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   st-nucleo-wba55:
     chip: stm32wba55cg
     ariel:

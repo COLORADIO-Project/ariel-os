@@ -28,8 +28,8 @@ pub mod net;
 #[cfg(feature = "wifi")]
 mod wifi;
 
-#[cfg(feature = "eth")]
-mod eth;
+#[cfg(feature = "ethernet")]
+mod ethernet;
 
 use ariel_os_debug::log::debug;
 
@@ -107,8 +107,8 @@ cfg_if::cfg_if! {
         use usb::ethernet::NetworkDevice;
     } else if #[cfg(feature = "wifi")] {
         use wifi::NetworkDevice;
-    } else if #[cfg(feature = "eth")] {
-        use eth::NetworkDevice;
+    } else if #[cfg(feature = "ethernet")] {
+        use ethernet::NetworkDevice;
     } else if #[cfg(feature = "tuntap")] {
         use crate::hal::tuntap::NetworkDevice;
     } else if #[cfg(context = "ariel-os")] {
@@ -195,7 +195,8 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
     debug!("ariel-os-embassy::init_task()");
 
-    #[cfg(board_init)]
+    // gated so doc builds pass
+    #[cfg(context = "ariel-os")]
     ariel_os_boards::init(&mut peripherals);
 
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
@@ -225,7 +226,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
     // Move out the peripherals required for drivers, so that tasks cannot mistakenly take them.
 
-    #[cfg(all(feature = "ble", not(context = "rp")))]
+    #[cfg(all(feature = "ble", not(any(context = "esp", context = "rp"))))]
     let ble_peripherals = hal::ble::Peripherals::new(&mut peripherals);
 
     #[cfg(feature = "usb")]
@@ -239,7 +240,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
     #[cfg(feature = "ble")]
     let ble_config = ble::config();
-    #[cfg(all(feature = "ble", not(context = "rp")))]
+    #[cfg(all(feature = "ble", not(any(context = "esp", context = "rp"))))]
     hal::ble::driver(ble_peripherals, spawner, ble_config);
 
     #[cfg(feature = "nrf91-modem")]
@@ -309,8 +310,8 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
         device
     };
 
-    #[cfg(feature = "eth-stm32")]
-    let device = hal::eth::device(&mut peripherals);
+    #[cfg(feature = "ethernet-stm32")]
+    let device = hal::ethernet::device(&mut peripherals);
 
     #[cfg(feature = "usb")]
     {
@@ -331,6 +332,8 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     #[cfg(all(feature = "ble-cyw43", feature = "wifi-cyw43"))]
     let (device, control) = hal::cyw43::device(&mut peripherals, &spawner, ble_config).await;
 
+    #[cfg(all(feature = "ble", context = "esp"))]
+    hal::ble::init(&mut peripherals, &ble_config, spawner).await;
     #[cfg(feature = "wifi-esp")]
     let device = hal::wifi::esp_wifi::init(&mut peripherals, spawner);
 
@@ -356,7 +359,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
             feature = "usb-ethernet",
             feature = "wifi-cyw43",
             feature = "wifi-esp",
-            feature = "eth",
+            feature = "ethernet",
             feature = "tuntap",
         )))]
         // The creation of `device` is not organized in such a way that they could be put in a

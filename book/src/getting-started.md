@@ -97,7 +97,7 @@ It explains how to compile and run the `hello-word` example to verify your setup
 To check that everything is installed correctly, the `hello-word` example can be compiled and run from the `ariel-os` directory.
 The following assumes you have your target board connected to your host computer.
 
-Find the Ariel OS name of your supported board in the [support matrix](./hardware-functionality-support.html).
+Find the Ariel OS name of your supported board in the [support matrix](./hardware-functionality-support.md).
 
 > [!NOTE]
 > The following assumes the Nordic nRF52840-DK, whose Ariel OS name is `nrf52840dk`.

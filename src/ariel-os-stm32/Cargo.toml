@@ -1,6 +1,6 @@
 [package]
 name = "ariel-os-stm32"
-version = "0.3.0"
+version = "0.4.0"
 edition.workspace = true
 rust-version.workspace = true
 repository.workspace = true
@@ -21,7 +21,6 @@ embassy-stm32 = { workspace = true, default-features = false, features = [
   "memory-x",
   "optfield",
   "rt",
-  "time-driver-any",
   "unstable-pac",
 ] }
 embedded-hal-async = { workspace = true }
@@ -61,10 +60,14 @@ i2c = [
   "dep:embassy-embedded-hal",
   "ariel-os-embassy-common/i2c",
   "embassy-stm32/time",
+  "time",
 ]
 
 ## Enables SPI support.
 spi = ["dep:embassy-embedded-hal", "ariel-os-embassy-common/spi"]
+
+## Enables a time driver.
+time = ["embassy-stm32/time-driver-any"]
 
 ## Enables UART support.
 uart = ["dep:embedded-io-async", "ariel-os-embassy-common/uart"]
@@ -75,8 +78,8 @@ storage = ["dep:embassy-embedded-hal"]
 ## Enables USB support.
 usb = []
 
-eth = []
-eth-stm32 = ["dep:embassy-embedded-hal", "eth"]
+ethernet = []
+ethernet-stm32 = ["dep:embassy-embedded-hal", "ethernet"]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "embassy-stm32/defmt"]

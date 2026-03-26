@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   espressif-esp32-c3-devkit-rust-1:
     chip: esp32-c3-mini-1
     buttons:

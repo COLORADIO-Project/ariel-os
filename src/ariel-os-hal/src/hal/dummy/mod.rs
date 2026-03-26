@@ -12,6 +12,7 @@
     clippy::needless_pass_by_value,
     reason = "this dummy module mimics manufacturer-specific crates"
 )]
+#![allow(unused, reason = "used by native and documentation only")]
 
 mod executor;
 

@@ -1,6 +1,6 @@
 [package]
 name = "ariel-os-nrf"
-version = "0.3.0"
+version = "0.4.0"
 edition.workspace = true
 rust-version.workspace = true
 repository.workspace = true
@@ -21,8 +21,6 @@ embassy-executor = { workspace = true, default-features = false, features = [
 embassy-nrf = { workspace = true, default-features = false, features = [
   "optfield",
   "rt",
-  "time",
-  "time-driver-rtc1",
   "unstable-pac",
 ] }
 embassy-sync = { workspace = true }
@@ -39,26 +37,19 @@ trouble-host = { workspace = true, optional = true }
 embassy-nrf = { workspace = true, features = ["nrf51"] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
-# Disable NFC support for now, as we do not support it yet.
-embassy-nrf = { workspace = true, features = ["nfc-pins-as-gpio", "nrf52832"] }
+embassy-nrf = { workspace = true, features = ["nrf52832"] }
 nrf-sdc = { workspace = true, features = ["nrf52832"], optional = true }
 
 [target.'cfg(context = "nrf52833")'.dependencies]
-# Disable NFC support for now, as we do not support it yet.
-embassy-nrf = { workspace = true, features = ["nfc-pins-as-gpio", "nrf52833"] }
+embassy-nrf = { workspace = true, features = ["nrf52833"] }
 nrf-sdc = { workspace = true, features = ["nrf52833"], optional = true }
 
 [target.'cfg(context = "nrf52840")'.dependencies]
-# Disable NFC support for now, as we do not support it yet.
-embassy-nrf = { workspace = true, features = ["nfc-pins-as-gpio", "nrf52840"] }
+embassy-nrf = { workspace = true, features = ["nrf52840"] }
 nrf-sdc = { workspace = true, features = ["nrf52840"], optional = true }
 
 [target.'cfg(context = "nrf5340-app")'.dependencies]
-# Disable NFC support for now, as we do not support it yet.
-embassy-nrf = { workspace = true, features = [
-  "nfc-pins-as-gpio",
-  "nrf5340-app-s",
-] }
+embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
 
 [target.'cfg(context = "nrf5340-net")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf5340-net"] }
@@ -83,10 +74,13 @@ external-interrupts = [
 hwrng = ["dep:ariel-os-random"]
 
 ## Enables I2C support.
-i2c = ["ariel-os-embassy-common/i2c"]
+i2c = ["ariel-os-embassy-common/i2c", "time"]
 
 ## Enables SPI support.
 spi = ["ariel-os-embassy-common/spi"]
+
+## Enables a time driver, and functionality requiring `embassy-time`.
+time = ["embassy-nrf/time", "embassy-nrf/time-driver-rtc1"]
 
 ## Enables UART support.
 uart = ["dep:embedded-io-async", "ariel-os-embassy-common/uart"]
@@ -110,6 +104,7 @@ ble-central = ["ble", "nrf-sdc/central"]
 
 ## Enables modem support.
 nrf91-modem = ["dep:cortex-m", "dep:nrf-modem", "dep:tinyrlibc"]
+radiocore-firmware-dect = ["nrf-modem?/dect"]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "embassy-nrf/defmt", "nrf-modem?/defmt", "nrf-sdc?/defmt"]

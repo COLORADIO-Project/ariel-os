@@ -1,6 +1,8 @@
+//! Provides runtime helpers.
+
 #![cfg_attr(not(any(test, context = "native")), no_std)]
 #![cfg_attr(test, no_main)]
-//
+#![deny(missing_docs)]
 #![allow(incomplete_features)]
 #![allow(unsafe_code)]
 #![cfg_attr(context = "xtensa", feature(asm_experimental_arch))]
@@ -44,6 +46,7 @@ cfg_if::cfg_if! {
             use crate::stack::Stack;
 
             pub fn init() {}
+            pub fn wfi() {}
             pub fn sp() -> usize { 0 }
             pub fn stack() -> Stack { Stack::default() }
         }
@@ -187,8 +190,10 @@ fn startup() -> ! {
     {
         #[cfg(test)]
         test_main();
-        #[allow(clippy::empty_loop)]
-        loop {}
+
+        loop {
+            arch::wfi();
+        }
     }
 }
 

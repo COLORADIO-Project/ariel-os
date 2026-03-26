@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   st-nucleo-f401re:
     chip: stm32f401re
     ariel:

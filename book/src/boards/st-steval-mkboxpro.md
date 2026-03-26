@@ -7,6 +7,7 @@
 ## laze Builders
 
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
+
 ### `st-steval-mkboxpro`
 
 - **Tier:** 2
@@ -35,6 +36,21 @@ laze build -b st-steval-mkboxpro
 |Bluetooth Low Energy|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>|
 |Hardware Random Number Generator|<span title="supported">✅</span>|
 |Persistent Storage|<span title="supported with some caveats">☑️</span>[^removing-items-not-supported]|
+
+#### Additional Notes
+
+The `st-steval-mkboxpro` can be flashed using USB DFU and using a debug probe.
+
+##### Using USB DFU for Flashing
+
+After connecting a USB-C cable, start the bootloader with DFU by cycling the power of the microcontroller while pressing button 2 on the side of the case.
+The microcontroller enumerates as "STMicroelectronics STM Device in DFU Mode" on the host computer.
+Use the `laze build flash-dfu` task to flash the microcontroller.
+
+##### Using a Debug Probe for Flashing
+
+After opening the case, use the JP2/SWD connector (marked "MCU SWD") with an SWD debug probe (e.g., the STLINK-V3MINIE):
+do note that JP2 is not keyed, the red wire of the ribbon cable must be closer to the JP2 pin marked "1" on the PCB (close to the POWER switch).
 
 <p>Legend:</p>
 

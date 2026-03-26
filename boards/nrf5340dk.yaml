@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   nrf5340dk-app:
     chip: nrf5340-app
     flags:
@@ -22,18 +23,17 @@ boards:
 
     buttons:
       button0:
-        color: green
         pin: P0_23
         active: low
       button1:
-        color: green
         pin: P0_24
         active: low
       button2:
-        color: green
         pin: P0_08
         active: low
       button3:
-        color: green
         pin: P0_09
         active: low
+
+  nrf5340dk-net:
+    chip: nrf5340-net

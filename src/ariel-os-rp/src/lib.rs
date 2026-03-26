@@ -74,15 +74,21 @@ ariel_os_embassy_common::executor_swi!(SWI_IRQ_1);
 pub static EXECUTOR: Executor = Executor::new();
 
 #[doc(hidden)]
-pub trait IntoPeripheral<'a, T: PeripheralType> {
+pub trait IntoPeripheral<'a, T: PeripheralType>: private::Sealed {
     fn into_hal_peripheral(self) -> Peri<'a, T>;
 }
+
+impl<T: PeripheralType> private::Sealed for Peri<'_, T> {}
 
 #[doc(hidden)]
 impl<'a, T: PeripheralType> IntoPeripheral<'a, T> for Peri<'a, T> {
     fn into_hal_peripheral(self) -> Peri<'a, T> {
         self
     }
+}
+
+mod private {
+    pub trait Sealed {}
 }
 
 #[doc(hidden)]

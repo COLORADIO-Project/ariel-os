@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   heltec-wifi-lora-32-v3:
     chip: esp32s3fx8
     leds:

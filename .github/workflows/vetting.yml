@@ -5,23 +5,24 @@ on:
       - main
   merge_group:
 
+permissions: {}
+
 jobs:
   cargo-vet:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - id: get_toolchain
-        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
+        with:
+          persist-credentials: false
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
-          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
+          toolchain: 1.94
 
       - name: Install cargo-vet
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: cargo-vet@0.10.2
 

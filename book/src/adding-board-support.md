@@ -17,6 +17,8 @@ Feel free to report anything that is unclear or missing!
 ## Adding Support for a Board
 
 Ariel OS uses [sbd][sbd] (Structured Board Description) files to describe boards.
+Each file corresponds to a physical board.
+Boards having multiple MCUs, or MCUs with multiple compilation targets, still require only a single file, but multiple `targets` entries are used to describe the different compilation targets.
 
 - Ensure that the HAL [is supported in `ariel-os-hal`](#adding-support-for-an-embassy-halmcu-family).
 - Ensure that the chip [is supported](#adding-support-for-an-mcu-from-a-supported-mcu-family).
@@ -24,13 +26,15 @@ Ariel OS uses [sbd][sbd] (Structured Board Description) files to describe board
   - It is usually best to copy and adapt an existing one.
   - `chip`: The board's chip, needs to correspond to an existing laze context in `laze-project.yml`.
 - In `doc/support_matrix.yml`:
-  - Add an entry under `boards`. Include a link to a `web.archive.org` snapshot that describes the board.
+  - Add an entry under `builders`.
+  - Add an entry under `boards`, that references that new builder.
+    Include a link to a `web.archive.org` snapshot that describes the board.
   - Update the generated support pages from the book using `laze build update-book`.
 - Some MCU families need extra steps, see [Extra steps for some MCU families](#extra-steps-for-some-mcu-families).
 
 ```yaml
 # boards/<your-board-name>.yaml
-boards:
+targets:
   st-nucleo-f401re:
     chip: stm32f401re
     # Generally the board description is supposed to be OS agnostic.
@@ -69,7 +73,7 @@ sbd-gen generate-ariel boards -o src/ariel-os-boards --mode update
 
 ### `stm32`
 
-- STM32 chips do not have a dedicated SWI, so you need to choose one. Select any unused interrupt, like one of the UARTs, and set the `boards.<board_name>.ariel.swi` field in the board description.
+- STM32 chips do not have a dedicated SWI, so you need to choose one. Select any unused interrupt, like one of the UARTs, and set the `targets.<board_name>.ariel.swi` field in the board description.
 - Each STM32 MCU needs an entry for configuring the clock config, in `src/ariel-os-stm32/src/lib.rs` `rcc_config()`.
 
 ### `esp32`

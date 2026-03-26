@@ -1,6 +1,6 @@
 [package]
 name = "ariel-os-embassy"
-version = "0.3.0"
+version = "0.4.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -42,10 +42,8 @@ ariel-os-storage = { workspace = true, optional = true }
 ariel-os-threads = { path = "../ariel-os-threads", optional = true }
 ariel-os-utils = { workspace = true }
 
-heapless = "0.8.0"
-once_cell = { workspace = true }
 trouble-host = { workspace = true, optional = true }
-usbd-hid = { version = "0.8.2", optional = true }
+usbd-hid = { version = "0.10.0", optional = true }
 
 # ISA-specific
 [target.'cfg(context = "cortex-m")'.dependencies]
@@ -91,9 +89,10 @@ uart = ["ariel-os-embassy-common/uart", "ariel-os-hal/uart"]
 usb = ["dep:embassy-usb", "ariel-os-hal/usb"]
 usb-hid = ["dep:usbd-hid", "embassy-usb?/usbd-hid", "usb"]
 
-# embassy-net requires embassy-time and support for timeouts in the executor
-net = ["dep:embassy-net", "time"]
-usb-ethernet = ["net", "usb"]
+# `embassy-net` requires a time driver, which HALs provide.
+net = ["dep:embassy-net", "ariel-os-hal/time"]
+# NOTE: `time` is only needed on STM32 for the workaround.
+usb-ethernet = ["net", "time", "usb"]
 ## Selects the network backend that goes through tun/tap (native only)
 tuntap = ["net"]
 
@@ -127,8 +126,8 @@ wifi = []
 wifi-cyw43 = ["ariel-os-hal/wifi-cyw43", "net", "wifi"]
 wifi-esp = ["ariel-os-hal/wifi-esp", "net", "wifi"]
 
-eth = []
-eth-stm32 = ["ariel-os-hal/eth-stm32", "eth", "net"]
+ethernet = []
+ethernet-stm32 = ["ariel-os-hal/ethernet-stm32", "ethernet", "net"]
 
 ble = [
   "dep:trouble-host",
@@ -140,8 +139,9 @@ ble = [
   "random",
 ]
 ble-cyw43 = ["ariel-os-hal/ble-cyw43", "ble"]
-ble-peripheral = ["ariel-os-hal/ble-peripheral", "ble"]
+ble-esp = ["ariel-os-hal/ble-esp", "ble"]
 ble-central = ["ariel-os-hal/ble-central", "ble"]
+ble-peripheral = ["ariel-os-hal/ble-peripheral", "ble"]
 
 nrf91-modem = ["ariel-os-hal/nrf91-modem"]
 
@@ -164,8 +164,8 @@ timer-generic-queue-64 = ["embassy-time?/generic-queue-64"]
 ## Generic Queue with 128 timers
 timer-generic-queue-128 = ["embassy-time?/generic-queue-128"]
 
-network-config-ipv4-static = ["network-config-override"]
-network-config-ipv6-static = ["network-config-override"]
+network-config-ipv4-static = []
+network-config-ipv6-static = []
 network-config-override = []
 override-usb-config = []
 rcc-config-override = ["ariel-os-hal/rcc-config-override"]

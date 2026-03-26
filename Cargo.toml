@@ -20,6 +20,7 @@ members = [
   "src/ariel-os-random",
   "src/ariel-os-rp",
   "src/ariel-os-sensors",
+  "src/ariel-os-sensors-gnss-time-ext",
   "src/ariel-os-sensors-registry",
   "src/ariel-os-sensors-utils",
   "src/ariel-os-stm32",
@@ -27,6 +28,9 @@ members = [
   "src/lib/coapcore",
   "src/lib/rbi",
   "src/lib/ringbuffer",
+  "src/sensors/ariel-os-sensor-lis2du12",
+  "src/sensors/ariel-os-sensor-lps22df",
+  "src/sensors/ariel-os-sensor-stts22h",
   "tests/benchmarks/bench_sched_flags",
   "tests/benchmarks/bench_sched_yield",
   "tests/coap",
@@ -38,6 +42,7 @@ members = [
   "tests/random-getrandom",
   "tests/spi-loopback",
   "tests/spi-main",
+  "tests/stack-painting",
   "tests/threading-dynamic-prios",
   "tests/threading-fpu",
   "tests/threading-lock",
@@ -51,7 +56,7 @@ default-members = ["examples/hello-world"]
 edition = "2024"
 # This should be the Ariel OS MSRV.
 # Some crates may have a different MSRV.
-rust-version = "1.91"
+rust-version = "1.94"
 repository = "https://github.com/ariel-os/ariel-os"
 license = "MIT OR Apache-2.0"
 
@@ -63,28 +68,29 @@ cortex-m = { version = "0.7", default-features = false, features = [
 cortex-m-rt = { version = "0.7.5" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.2.0" }
-featurecomb = "0.1.3"
+featurecomb = "0.2.0"
 # Disabling default features may reduce the code size by not providing atomics
 # for types larger than the pointer width, which we do not use.
 portable-atomic = { version = "1.11.0", default-features = false, features = [
   "require-cas",
 ] }
-semihosting = { version = "0.1.16", default-features = false }
+riscv = { version = "0.15.0", default-features = false }
+semihosting = { version = "0.1.24", default-features = false }
 
 embassy-embedded-hal = { version = "0.5.0", default-features = false }
 embassy-executor = { version = "0.9.1", default-features = false }
 embassy-futures = { version = "0.1.2", default-features = false }
 embassy-hal-internal = { version = "0.3.0", default-features = false }
-embassy-net = { version = "0.7.1", default-features = false }
+embassy-net = { version = "0.8.0", default-features = false }
 embassy-net-driver-channel = { version = "0.3.2", default-features = false }
 embassy-nrf = { version = "0.8.0", default-features = false }
 embassy-rp = { version = "0.8", default-features = false }
 embassy-stm32 = { version = "0.4", default-features = false }
 embassy-sync = { version = "0.7.2", default-features = false }
-embassy-time = { version = "0.5.0", default-features = false }
-embassy-time-driver = { version = "0.2.1", default-features = false }
+embassy-time = { version = "0.5.1", default-features = false }
+embassy-time-driver = { version = "0.2.2", default-features = false }
 embassy-time-queue-utils = { version = "0.3.0", default-features = false }
-embassy-usb = { version = "0.5.1", default-features = false }
+embassy-usb = { version = "0.6.0", default-features = false }
 
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
@@ -136,6 +142,7 @@ ariel-os-rp = { path = "src/ariel-os-rp" }
 ariel-os-rt = { path = "src/ariel-os-rt" }
 ariel-os-runqueue = { path = "src/ariel-os-runqueue" }
 ariel-os-sensors = { path = "src/ariel-os-sensors" }
+ariel-os-sensors-gnss-time-ext = { path = "src/ariel-os-sensors-gnss-time-ext" }
 ariel-os-sensors-registry = { path = "src/ariel-os-sensors-registry" }
 ariel-os-sensors-utils = { path = "src/ariel-os-sensors-utils" }
 ariel-os-stm32 = { path = "src/ariel-os-stm32" }
@@ -143,13 +150,18 @@ ariel-os-storage = { path = "src/ariel-os-storage" }
 ariel-os-threads = { path = "src/ariel-os-threads" }
 ariel-os-utils = { path = "src/ariel-os-utils", default-features = false }
 
-const-str = "0.7.0"
+# Built-in sensor drivers.
+ariel-os-sensor-lis2du12 = { path = "src/sensors/ariel-os-sensor-lis2du12" }
+ariel-os-sensor-lps22df = { path = "src/sensors/ariel-os-sensor-lps22df" }
+ariel-os-sensor-stts22h = { path = "src/sensors/ariel-os-sensor-stts22h" }
+
+const-str = "1.0.0"
 const_panic = { version = "0.2.8", default-features = false }
 defmt = { version = "1.0.0" }
 defmt-rtt = { version = "1.1.0" }
 document-features = "0.2.8"
 fugit = { version = "0.3.7", default-features = false }
-heapless = { version = "0.8.0", default-features = false }
+heapless = { version = "0.9.1", default-features = false }
 ld-memory = { version = "0.2.9" }
 log = { version = "0.4.20", default-features = false }
 once_cell = { version = "1.21.3", default-features = false, features = [
@@ -171,7 +183,7 @@ trouble-host = { version = "0.5.0" }
 #nrf-sdc = { version = "0.4.0" }
 nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc", rev = "e64ad081a6948b3439d1e811da36d39a5785dbda" }
 
-nrf-modem = { version = "0.7.3" }
+nrf-modem = { version = "0.10.1" }
 tinyrlibc = "0.5.0"
 
 [workspace.lints.rust]

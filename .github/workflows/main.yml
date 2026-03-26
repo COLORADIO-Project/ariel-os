@@ -9,6 +9,8 @@ on:
       - main
   merge_group:
 
+permissions: {}
+
 concurrency:
   group: ${{ github.head_ref || github.run_id }}-main
   cancel-in-progress: true
@@ -20,17 +22,19 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - id: get_toolchain
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
 
       - name: Install laze
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: laze@0.1
 
@@ -38,7 +42,7 @@ jobs:
         run: sudo apt-get install ninja-build gcc-arm-none-eabi
 
       - name: rust cache
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
       - name: Run host-side crate tests
         run: laze build -DCARGO_ARGS+='--locked' --builders host --multiple-tasks --global --keep-going=0 test
@@ -49,6 +53,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       # "Obfuscate" the search query with concatenation so it does not self-trigger.
       - name: Check for leftover occurrences of the old project name
@@ -78,7 +84,7 @@ jobs:
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           # Required for checking ariel-os-esp and ariel-os-nrf
@@ -89,10 +95,10 @@ jobs:
         run: sudo apt-get install gcc-arm-none-eabi
 
       - name: rust cache
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
       - name: Install cargo-deny
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: cargo-deny
 
@@ -157,6 +163,7 @@ jobs:
             -p ariel-os-random
             -p ariel-os-rt
             -p ariel-os-sensors
+            -p ariel-os-sensors-gnss-time-ext
             -p ariel-os-sensors-registry
             -p ariel-os-sensors-utils
             -p ariel-os-storage
@@ -288,25 +295,29 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - id: get_toolchain
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           targets: riscv32imac-unknown-none-elf
           components: rust-src
 
       - name: rust cache
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
       - name: rustdoc
         run: |
             RUSTDOCFLAGS='-D warnings' cargo doc \
                 --no-deps \
                 -p ariel-os \
+                -p ariel-os-sensors \
+                -p ariel-os-sensors-gnss-time-ext \
                 -p coapcore \
                 --features "
                     ariel-os-sensors/max-sample-min-count-12,
@@ -400,6 +411,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: rustfmt
         run: cargo fmt --check --all -- --config format_generated_files=false
@@ -410,9 +423,11 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: yamllint
-        uses: karancode/yamllint-github-action@master
+        uses: karancode/yamllint-github-action@4052d365f09b8d34eb552c363d1141fd60e2aeb2 # master
         with:
           yamllint_comment: true # Insert inline PR comments
           yamllint_strict: true # Set error code on warnings
@@ -423,9 +438,11 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Install taplo
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: taplo
           fallback: none
@@ -439,9 +456,11 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Install cargo-manifest-check
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: cargo-manifest-check@0.3
 
@@ -454,6 +473,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Ruff
         uses: chartboost/ruff-action@e18ae971ccee1b2d7bbef113930f00c670b78da4 # v1
@@ -466,9 +487,11 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: typos
-        uses: crate-ci/typos@3a4d65230db538caabac6e156599c8ba8380ff07 # v1.43.1
+        uses: crate-ci/typos@631208b7aac2daa8b707f55e7331f9112b0e062d # v1.44.0
 
       - name: Check that the book summary has an up-to-date board list
         run: ./doc/gen_book.rs summary doc/support_matrix.yml book/src/SUMMARY.md --template-path book/templates/SUMMARY.md.tmpl --check
@@ -492,7 +515,7 @@ jobs:
           ./doc/gen_book.rs chip-index doc/support_matrix.yml book/src/chips/index.md --template-path book/templates/chip-index.md.tmpl --check
 
       - name: Install mdbook
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
           tool: mdbook@0.5
 
@@ -502,9 +525,9 @@ jobs:
           mdbook build
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@a8c4c7cb88f0c7386610c35eb25108e448569cb0 # v2
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2
         with:
-          args: --offline --require-https --no-progress --include-fragments --include-verbatim -v '*.md' book/book
+          args: --root-dir book/book --offline --require-https --no-progress --include-fragments --include-verbatim -v '*.md' book/book
           fail: true
 
   sbd-gen-check:
@@ -513,11 +536,13 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - name: Install sbd-gen
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
-          tool: sbd-gen@0.1.9
+          tool: sbd-gen@0.3.0
 
       - name: Check sbd-gen output
         run: |

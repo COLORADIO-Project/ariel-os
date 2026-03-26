@@ -7,6 +7,7 @@
 ## laze Builders
 
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
+
 ### `nrf9160dk-nrf9160`
 
 - **Tier:** 2

@@ -1,8 +1,9 @@
-boards:
+version: 0.3.0
+targets:
   st-nucleo-h755zi-q:
     chip: stm32h755zi
     flags:
-      - has_eth_stm32
+      - has_ethernet_stm32
       - has_usb_device_port
     ariel:
       swi: UART5

@@ -1,4 +1,4 @@
-//! This module contains a custom [`Signal`] struct meant to be used in the [`ariel-os-sensors`][ariel-os-sensors] ecosystem.
+//! This module contains a custom [`Signal`] struct meant to be used in the [`ariel-os-sensors`][crate] ecosystem.
 
 use core::{
     cell::Cell,

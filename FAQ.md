@@ -26,11 +26,11 @@ Ariel OS has Embassy at its heart, using it for hardware abstraction, async exec
 - abstracted peripheral APIs, increasing portability
   - while Embassy's HALs implement the embedded-hal(-async) traits, the initialization API is slightly different for each MCU family (it fits perfectly for the corresponding hardware). Ariel OS abstracts that provides an API that is identical *across* MCU families.
 - pre-integrated modules like networking, storage that are ready to use
-  - where Embassy and the eco system provide all the building blocks (embassy-net, rand), setup and initialization needs per-MCU copy+pasting and combining from the examples and resources. Ariel improves on that, e.g., setting up the hwrng or network stack centrally, making it ready to use for applications.
+  - where Embassy and the eco system provide all the building blocks (embassy-net, rand), setup and initialization needs per-MCU copy+pasting and combining from the examples and resources. Ariel OS improves on that, e.g., setting up the hwrng or network stack centrally, making it ready to use for applications.
 - a modularized system initialization scheme
-  - where Embassy leaves full control to the application developer by requiring all set up to be done in the application's `main()`, by the application developer, Ariel does a lot of initialization (e.g., network stack, rng, storage) internally, and hands a ready-to-use system to the developer
+  - where Embassy leaves full control to the application developer by requiring all set up to be done in the application's `main()`, by the application developer, Ariel OS does a lot of initialization (e.g., network stack, rng, storage) internally, and hands a ready-to-use system to the developer
 - a meta build system that handles supporting many different target devices
-  - Ariel OS wraps Cargo in [laze](https://laze-build.org) in order to manage all the build-system configuration that Cargo cannot handle itself, like `--target`, the used runner, probe-rs configuration, linker setting, that are usually hard-coded per board. laze simplifies building for multiple target boards.
+  - Ariel OS wraps Cargo in [laze](https://kaspar030.github.io/laze/dev/index.html) in order to manage all the build-system configuration that Cargo cannot handle itself, like `--target`, the used runner, probe-rs configuration, linker setting, that are usually hard-coded per board. laze simplifies building for multiple target boards.
 
 Practically, Ariel OS moves some of the control of the classical main loop most Embassy applications have, and handles a lot of the "generic system" stuff itself. Actual applications contain less system bring-up, less boilerplate, and can concentrate on business logic.
 
@@ -38,7 +38,7 @@ Practically, Ariel OS moves some of the control of the classical main loop most 
 
 Ariel OS was started by RIOT maintainers as a rewrite of specific components of RIOT, in the context of a cybersecurity research project named [RIOT-fp](https://future-proof-iot.github.io/RIOT-fp/about). Initially the goal was to apply memory safety and modern language concepts to RIOT, while providing  identical C APIs. The project eventually shifted towards not providing identical C APIs, but still builds on concepts and experience from RIOT -- in some sense it is a rewrite of RIOT, but trying to translate meaning rather than words.
 
-There is active collaboration between RIOT and Ariel. While applications can generally not be ported between Ariel OS and RIOT OS for the moment, there is already shared code used through Rust RIOT wrappers. We hope to enable some applications to be portable between both platforms in the future. In addition to shared code, we also share infrastructure, have common goals, and meet as part of the RIOT community.
+There is active collaboration between RIOT and Ariel OS. While applications can generally not be ported between Ariel OS and RIOT OS for the moment, there is already shared code used through Rust RIOT wrappers. We hope to enable some applications to be portable between both platforms in the future. In addition to shared code, we also share infrastructure, have common goals, and meet as part of the RIOT community.
 
 
 ## Does Ariel OS provide an SBOM (Software Bill of Materials)?

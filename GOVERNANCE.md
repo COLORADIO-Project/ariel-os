@@ -45,7 +45,7 @@ This privilege is granted with some expectation of responsibility: team members 
 
 ### Contributors
 
-Anyone can contribute to the Ariel OS project, for example via comments on issues or pull requests, writing code or documentation etc. For more explanation on how to contribute to this project, please have a look at our [contributing guide](https://github.com/ariel-os/ariel-os/blob/main/CONTRIBUTING.md). 
+Anyone can contribute to the Ariel OS project, for example via comments on issues or pull requests, writing code or documentation etc. For more explanation on how to contribute to this project, please have a look at our [contributing guide](https://github.com/ariel-os/ariel-os/blob/main/CONTRIBUTING.md).
 
 
 ## Getting involved
@@ -55,7 +55,7 @@ Decisions about the Ariel OS project are made in the matrix chat room and during
 
 ### Matrix chat room
 
-The [Ariel OS Matrix chat room](https://matrix.to/#/#ariel-os:matrix.org) is the main communication channel for all users, contributors and team members of Ariel OS. It is open to anyone interested in the project, so feel free to join! 
+The [Ariel OS Matrix chat room](https://matrix.to/#/#ariel-os:matrix.org) is the main communication channel for all users, contributors and team members of Ariel OS. It is open to anyone interested in the project, so feel free to join!
 
 
 ### Weekly meeting
@@ -68,5 +68,4 @@ Team members meet weekly online to discuss the current progress of the project. 
 All code and documentation of Ariel OS is available at the [Ariel OS GitHub](https://github.com/ariel-os/ariel-os).
 
 
-*The present text was written by Karin Lammers and is licensed as [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), including components and inspiration from  [The Maintainer Council Template](https://contribute.cncf.io/maintainers/templates/governance-maintainer/), licensed likewise.*
-
+*The present text was written by Karin Lammers and is licensed as [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), including components and inspiration from  [The Maintainer Council Template](https://contribute.cncf.io/projects/best-practices/governance/templates/governance-maintainer/), licensed likewise.*

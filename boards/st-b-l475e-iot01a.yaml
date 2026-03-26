@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   st-b-l475e-iot01a:
     chip: stm32l475vg
     flags:

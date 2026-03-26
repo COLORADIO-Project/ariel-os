@@ -41,9 +41,9 @@ pub(crate) mod ethernet {
     #[embassy_executor::task]
     pub async fn usb_ncm_task(class: Runner<'static, UsbDriver, ETHERNET_MTU>) -> ! {
         {
-            // on stm32 with the synopsis-otg, usb ethernet fails to enumerate otherwise.
+            // on stm32 with the synopsys-otg, usb ethernet fails to enumerate otherwise.
             // See https://github.com/embassy-rs/embassy/issues/2376.
-            #[cfg(capability = "hw/stm32-usb-synopsis")]
+            #[cfg(capability = "hw/stm32-usb-synopsys")]
             crate::api::time::Timer::after_millis(3000).await;
         }
 

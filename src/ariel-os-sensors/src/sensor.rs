@@ -14,10 +14,9 @@ use crate::{Category, Label, MeasurementUnit, signal};
 use channels_samples_zip::ChannelsSamplesZip;
 use samples::InnerSamples;
 
-pub use crate::{
-    Reading,
-    sample::{Sample, SampleError, SampleMetadata},
-};
+#[doc(inline)]
+pub use crate::Reading;
+pub use crate::sample::{Sample, SampleError, SampleMetadata};
 pub use reading_channels::ReadingChannels;
 pub use samples::{Samples, SensorAccess};
 

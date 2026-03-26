@@ -7,6 +7,7 @@
 ## laze Builders
 
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
+
 ### `adafruit-feather-nrf52840-sense`
 
 - **Tier:** 3

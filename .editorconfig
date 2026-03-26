@@ -1,5 +1,5 @@
 root = true
-spelling_language = en
+spelling_language = en-US
 end_of_line = lf
 
 [*.rs]

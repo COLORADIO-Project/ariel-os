@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   st-nucleo-c031c6:
     chip: stm32c031c6
     ariel:

@@ -15,7 +15,7 @@
 use alloc::boxed::Box;
 use core::ptr::NonNull;
 
-use ariel_os_debug::log::{debug, trace};
+use ariel_os_debug::log::trace;
 use ariel_os_threads::sync::WaitQueue;
 use esp_radio_rtos_driver::{
     ThreadPtr, current_task, now,
@@ -284,12 +284,12 @@ impl CompatSemaphore {
             });
 
             if taken {
-                debug!("Semaphore - take - success");
+                trace!("Semaphore - take - success");
                 return true;
             }
 
             if now() > deadline {
-                debug!("Semaphore - take - timed out");
+                trace!("Semaphore - take - timed out");
                 return false;
             }
         }

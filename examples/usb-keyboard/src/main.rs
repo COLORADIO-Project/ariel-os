@@ -10,7 +10,7 @@ use ariel_os::{
     time::Timer,
     usb::UsbDriver,
 };
-use embassy_usb::class::hid::{self, HidReaderWriter};
+use embassy_usb::class::hid::{self, HidBootProtocol, HidReaderWriter, HidSubclass};
 use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
 
 // Assuming a QWERTY US layout, see https://docs.qmk.fm/#/how_keyboards_work
@@ -55,6 +55,8 @@ async fn usb_keyboard(button_peripherals: pins::Buttons) {
         request_handler: None,
         poll_ms: 60,
         max_packet_size: 64,
+        hid_subclass: HidSubclass::Boot,
+        hid_boot_protocol: HidBootProtocol::Keyboard,
     };
 
     let hid_state = HID_STATE.init_with(hid::State::new);

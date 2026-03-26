@@ -3,6 +3,9 @@ use embassy_stm32::peripherals::ETH;
 use embassy_stm32::{bind_interrupts, eth};
 use static_cell::StaticCell;
 
+// Index of the builtin Ethernet MAC, used for generating the MAC address.
+const IF_INDEX: u32 = 0;
+
 bind_interrupts!(struct Irqs {
     ETH => eth::InterruptHandler;
 });
@@ -12,7 +15,7 @@ pub type NetworkDevice = Ethernet<'static, ETH, GenericPhy>;
 pub fn device(peripherals: &mut crate::OptionalPeripherals) -> NetworkDevice {
     static PKTS: StaticCell<eth::PacketQueue<4, 4>> = StaticCell::new();
 
-    let mac_addr = [0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
+    let mac_addr = get_mac_address();
 
     Ethernet::new(
         PKTS.init(eth::PacketQueue::<4, 4>::new()),
@@ -30,4 +33,15 @@ pub fn device(peripherals: &mut crate::OptionalPeripherals) -> NetworkDevice {
         GenericPhy::new(0),
         mac_addr,
     )
+}
+
+/// Returns a stable MAC address based on the device identity.
+fn get_mac_address() -> [u8; 6] {
+    use ariel_os_embassy_common::identity::DeviceId;
+
+    // NOTE(no-panic): infallible on STM32.
+    match crate::identity::DeviceId::get() {
+        Ok(device_id) => device_id.interface_eui48(IF_INDEX).0,
+        Err(_) => unreachable!(),
+    }
 }

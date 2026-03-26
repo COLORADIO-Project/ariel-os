@@ -3,7 +3,7 @@
 ## Printing on the Debug Console
 
 The debug console is enabled by default and the corresponding [laze module][laze-modules-book] is `debug-console`.
-The [`ariel_os::debug::print!()`][print-macro-rustdoc]/[`ariel_os::debug::println!()`][println-macro-rustdoc] macros are used to print on the debug console.
+The [`ariel_os::debug::println!()`][println-macro-rustdoc] macro is used to print on the debug console.
 
 When the debug console is enabled, panic messages are automatically printed to it.
 If this is unwanted, the `panic-printing` [laze module][laze-modules-book] can be disabled.
@@ -46,6 +46,13 @@ if none of them are enabled, logging statements become no-operations.
 Enabling either the `defmt` or `log` [laze modules][laze-modules-book] allows selecting which logging facade and logger is used.
 defmt should be preferred when possible as it results in smaller binaries.
 
+> [!TIP]
+> The `defmt` laze module is favored and enabled by default when possible for
+> the target.
+> Applications that specifically depend on it still need to explicitly
+> [select][laze-modules-book] it to make the dependency explicit and increase
+> robustness to potential future changes.
+
 The precise set of formatting operations and traits required on formatted data
 depends on the selected backend.
 There are some wrapper structs available in the [`ariel_os::debug::log`] module
@@ -78,5 +85,4 @@ Ariel OS's logger for `log` supports configuring the log level globally, but do
 [defmt documentation]: https://defmt.ferrous-systems.com/
 [log]: https://github.com/rust-lang/log
 [laze-modules-book]: ./build-system.md#laze-modules
-[print-macro-rustdoc]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/debug/macro.print.html
 [println-macro-rustdoc]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/debug/macro.println.html

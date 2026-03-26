@@ -28,8 +28,6 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -44,19 +42,21 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - id: get_toolchain
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           components: rust-src
           targets: riscv32imac-unknown-none-elf
 
       - name: rust cache
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
 
       # Docs of HAL crates must be generated after that of the main crate,
       # otherwise this would result in broken links, as they use `--no-deps` for
@@ -66,6 +66,7 @@ jobs:
           RUSTDOCFLAGS='--cfg nightly -Z unstable-options --extern-html-root-url trouble_host=https://docs.embassy.dev/trouble-host/0.5.0 ' cargo doc \
               --no-deps \
               -p ariel-os \
+              -p ariel-os-sensors \
               -p coapcore \
               --features "
                   ariel-os-sensors/max-sample-min-count-12,
@@ -108,6 +109,8 @@ jobs:
             -p embedded-hal@1.0.0 \
             -p embedded-hal-async \
             -p embedded-io-async@0.6.1
+
+          cargo doc --no-deps -p ariel-os-sensors-gnss-time-ext
           RUSTDOCFLAGS='-D warnings --cfg context="esp32c6" --cfg nightly' cargo doc \
               --target=riscv32imac-unknown-none-elf \
               --no-deps \
@@ -158,9 +161,9 @@ jobs:
           sed -i 's/"ariel_os","ariel_os_nrf"/"ariel_os","ariel_os_esp","ariel_os_nrf"/g' ./_site/dev/docs/api/crates.js
 
       - name: Install mdbook
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
         with:
-          tool: mdbook@0.5.0-alpha.1
+          tool: mdbook@0.5
 
       - name: Build the book
         run: |
@@ -207,7 +210,7 @@ jobs:
 
       - name: Upload artifact (PR)
         if: github.event_name == 'pull_request' && steps.check.conclusion == 'success'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: pr-${{ github.event.number }}-docs
           path: ./_site
@@ -216,13 +219,16 @@ jobs:
 
       - name: Upload artifact (PR number)
         if: github.event_name == 'pull_request' && steps.check.conclusion == 'success'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: pr-number
           path: ./pr
 
   deploy:
     if: github.event_name != 'pull_request'
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -73,7 +73,7 @@ impl TimeDriver {
 
 #[esp_hal::ram]
 extern "C" fn timer_handler() {
-    ariel_os_debug::log::debug!("timer_handler()");
+    trace!("timer_handler()");
 
     let now = now();
 
@@ -138,7 +138,7 @@ impl TimerQueue {
     }
 
     pub(crate) fn handle_alarm(&self, now: u64) -> u64 {
-        ariel_os_debug::log::debug!("handle_alarm() at {}", now);
+        trace!("handle_alarm() at {}", now);
         self.inner.with(|inner| inner.handle_alarm(now))
     }
 }
@@ -153,7 +153,7 @@ impl embassy_time_driver::Driver for TimerQueue {
     fn schedule_wake(&self, at: u64, waker: &Waker) {
         self.inner.with(|inner| {
             if inner.schedule_wake(at, waker) {
-                ariel_os_debug::log::debug!(
+                trace!(
                     "schedule wake at {}, now={} next_wakeup={}",
                     at,
                     now(),

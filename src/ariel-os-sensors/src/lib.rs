@@ -64,4 +64,5 @@ pub use category::Category;
 pub use label::Label;
 pub use measurement_unit::MeasurementUnit;
 pub use sample::Reading;
+#[doc(inline)]
 pub use sensor::Sensor;

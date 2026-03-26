@@ -5,6 +5,8 @@ use embassy_time::Duration;
 
 use crate::{SCHEDULER, ThreadId, ThreadState, thread_flags::ThreadFlags};
 
+use ariel_os_debug::log::trace;
+
 const THREAD_FLAG_TIMEOUT: ThreadFlags = 2; // TODO: find more appropriate value
 
 fn wake(ptr: *const ()) {
@@ -14,11 +16,9 @@ fn wake(ptr: *const ()) {
         if let Some(deadline) = scheduler.threads[usize::from(thread_id)].deadline {
             let now = embassy_time_driver::now();
             if now >= deadline {
-                ariel_os_debug::log::debug!(
+                trace!(
                     "timer for {:?} expired, triggering thread (deadline={:?}, now={:?})",
-                    thread_id,
-                    deadline,
-                    now
+                    thread_id, deadline, now
                 );
                 scheduler.threads[usize::from(thread_id)].deadline = None;
                 scheduler.flag_set(thread_id, THREAD_FLAG_TIMEOUT);
@@ -29,15 +29,13 @@ fn wake(ptr: *const ()) {
                     }
                 }
             } else {
-                ariel_os_debug::log::debug!(
+                trace!(
                     "timer for {:?} not due yet (deadline={:?}, now={:?})",
-                    thread_id,
-                    deadline,
-                    now
+                    thread_id, deadline, now
                 );
             }
         } else {
-            ariel_os_debug::log::debug!(
+            trace!(
                 "timer for {:?} now={:?} (no deadline set)",
                 thread_id,
                 embassy_time_driver::now()
@@ -75,7 +73,7 @@ fn set_deadline(cs: CriticalSection<'_>, deadline: u64) -> bool {
         thread.tid
     });
 
-    ariel_os_debug::log::debug!("setting deadline for {:?} to {:?}", thread_id, deadline);
+    trace!("setting deadline for {:?} to {:?}", thread_id, deadline);
     schedule_thread_wakeup(thread_id, deadline);
 
     SCHEDULER.with_mut_cs(cs, |mut scheduler| {
@@ -93,7 +91,7 @@ fn clear_deadline(cs: CriticalSection<'_>) -> bool {
     let (did_clear, thread_id) = SCHEDULER.with_mut_cs(cs, |mut scheduler| {
         let thread = scheduler.current().expect("must be called from a thread");
         let did_clear = thread.deadline.take().is_some();
-        ariel_os_debug::log::debug!(
+        trace!(
             "clear_deadline() for {:?}: {} at {}",
             thread.tid,
             true,
@@ -127,19 +125,19 @@ pub(crate) unsafe fn with_deadline(
         if set_deadline(cs, deadline) {
             // The deadline was in the future, so we can run the function
             f(cs);
-            ariel_os_debug::log::debug!("with_deadline: cs at {}", embassy_time_driver::now());
+            trace!("with_deadline: cs at {}", embassy_time_driver::now());
             true
         } else {
             // The deadline was in the past, so we don't run the function
-            ariel_os_debug::log::debug!("with_deadline: deadline {} was in the past", deadline);
+            trace!("with_deadline: deadline {} was in the past", deadline);
             false
         }
     }) && critical_section::with(|cs| {
         if clear_deadline(cs) {
-            ariel_os_debug::log::debug!("with_deadline: cleared deadline {}", deadline);
+            trace!("with_deadline: cleared deadline {}", deadline);
             false
         } else {
-            ariel_os_debug::log::debug!("with_deadline: timeout deadline {}", deadline);
+            trace!("with_deadline: timeout deadline {}", deadline);
             on_timeout(cs)
         }
     })
@@ -164,20 +162,20 @@ pub(crate) unsafe fn with_deadline_check(
     let deadline = deadline.as_ticks();
     let initial = critical_section::with(|cs| {
         if check(cs) {
-            ariel_os_debug::log::debug!(
+            trace!(
                 "with_deadline_check: initial check succeeded, early out for deadline={}",
                 deadline
             );
             Some(true)
         } else if set_deadline(cs, deadline) {
-            ariel_os_debug::log::debug!(
+            trace!(
                 "with_deadline_check: initial check failed, calling wait() for deadline={}",
                 deadline
             );
             wait(cs);
             None
         } else {
-            ariel_os_debug::log::debug!(
+            trace!(
                 "with_deadline_check: initial check failed, deadline in past, early out for deadline={}",
                 deadline
             );
@@ -189,12 +187,12 @@ pub(crate) unsafe fn with_deadline_check(
         Some(val) => val,
         None => critical_section::with(|cs| {
             if clear_deadline(cs) {
-                ariel_os_debug::log::debug!(
+                trace!(
                     "with_deadline_check: timeout was not hit for deadline={}",
                     deadline
                 );
             } else {
-                ariel_os_debug::log::debug!(
+                trace!(
                     "with_deadline_check: timeout was hit for deadline={}, calling on_timeout",
                     deadline
                 );

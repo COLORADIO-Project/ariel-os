@@ -43,12 +43,12 @@ Multiple resources are available to learn Ariel OS:
   demonstrate various features of Ariel OS.
 - 🧪 A set of [test cases](https://github.com/ariel-os/ariel-os/tree/main/tests)
   further verifies the capabilities of Ariel OS.
-- 🚧 The [roadmap](https://github.com/ariel-os/ariel-os/issues/242)
+- 🚧 The [roadmap](https://github.com/ariel-os/ariel-os/blob/main/ROADMAP.md)
   shows the planned features for Ariel OS.
 
 ## Minimum Supported Rust Version (MSRV) and Policy
 
-Ariel OS compiles with stable Rust version 1.91 and up.
+Ariel OS compiles with stable Rust version 1.94 and up.
 The MSRV can be increased in patch version updates.
 
 ## Security
@@ -59,8 +59,8 @@ If you think you may have found an issue that represents a security risk to Arie
 
 Ariel OS is licensed under either of
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](./LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT](./LICENSE-MIT) or http://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 ([LICENSE-APACHE](./LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](./LICENSE-MIT) or https://opensource.org/licenses/MIT)
 
 at your option.
 

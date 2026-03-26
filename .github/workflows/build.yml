@@ -9,7 +9,10 @@ on:
   merge_group:
   schedule:
     # run every morning at 3:17am
-    - cron: '17 3 * * *'
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}-build
@@ -19,7 +22,8 @@ jobs:
   check-labels:
     runs-on: ubuntu-24.04
     outputs:
-      label: ${{ steps.get-pr-labels.outputs.result }}
+      label: ${{ fromJSON(steps.get-pr-labels.outputs.result).buildLabel }}
+      runnerLabel: ${{ fromJSON(steps.get-pr-labels.outputs.result).runnerLabel }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -30,6 +34,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 2
+          persist-credentials: false
 
       # Get the second parent of the merge commit created by the `checkout`
       # action.
@@ -43,9 +48,10 @@ jobs:
       - name: "Get PR build labels through the commit hash of the pull request"
         id: get-pr-labels
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          BUILD_RUNNER: ${{ vars.BUILD_RUNNER }}
         with:
-          result-encoding: string
-          script: |
+          script: | # zizmor: ignore[template-injection] input is always a commit SHA
             const commitId = "${{ steps.get-commit-id.outputs.commit_id }}";
             console.log(`Commit ID: ${commitId}`);
             const { data: { items } } = await github.rest.search.issuesAndPullRequests({
@@ -69,6 +75,18 @@ jobs:
                 continue;
               }
               const prLabels = pr.labels.map((label) => label.name);
+
+              const SELF_HOSTED_RUNNER_LABEL = "self-hosted-ubuntu";
+              const GITHUB_HOSTED_RUNNER_LABEL = "ubuntu-24.04";
+
+              // Read the environment variable, if none use the self-hosted default.
+              let runnerLabel = process.env.BUILD_RUNNER || SELF_HOSTED_RUNNER_LABEL;
+
+              // Override the previous value if we have the corresponding PR label.
+              if (prLabels.includes("ci-host:github")) {
+                runnerLabel = GITHUB_HOSTED_RUNNER_LABEL;
+              }
+
               console.log(`The labels of PR #${prNumber} are ${prLabels}`);
               const VALID_LABELS = ['ci-build:esp', 'ci-build:full', 'ci-build:native', 'ci-build:nrf', 'ci-build:rp', 'ci-build:skip', 'ci-build:small', 'ci-build:stm32'];
               const buildLabels = prLabels.filter((label) => VALID_LABELS.includes(label));
@@ -76,14 +94,20 @@ jobs:
               const buildLabel = buildLabels[0];
               if (!buildLabel) { throw 'A build label must be attached'; }
               console.log(`The build label is ${buildLabel}`);
-              return buildLabel;
+              console.log(`The runner label selected for the build is ${runnerLabel}`);
+              return { buildLabel, runnerLabel };
             }
             // This can happen because the API is paginated.
             throw 'Did not find the PR; maybe it has more than 30 commits?';
 
   build:
     needs: check-labels
-    runs-on: ubuntu-24.04
+
+    # runs-on is determined by the check-labels job, by default it's running on self-hosted runners
+    # ("self-hosted-ubuntu") but can be overriden by the BUILD_RUNNER repository variable and the
+    # ci-host:github label (sets the runner to "ubuntu-24.04").
+    runs-on: ${{ needs.check-labels.outputs.runnerLabel }}
+
     # Ignore the PR labels in nightly builds.
     if: ${{ github.event_name == 'schedule' || needs.check-labels.outputs.label != 'ci-build:skip' }}
 
@@ -101,10 +125,29 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        partition: ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20"]
+        partition:
+          [
+            "1/12",
+            "2/12",
+            "3/12",
+            "4/12",
+            "5/12",
+            "6/12",
+            "7/12",
+            "8/12",
+            "9/12",
+            "10/12",
+            "11/12",
+            "12/12",
+          ]
 
     steps:
+      - name: reset git-cache update barrier
+        if: runner.environment == 'self-hosted'
+        run: pkill -f -SIGUSR1 /usr/local/bin/git-cache-daemon | true
+
       - name: Free up space
+        if: runner.environment != 'self-hosted'
         run: |
           sudo rm -rf \
             /opt/ghc \
@@ -121,6 +164,11 @@ jobs:
 
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+          # we need to access all the commits to know when the file was last modified
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Get tree hashes
         id: get-tree-hashes
@@ -135,7 +183,7 @@ jobs:
       # Merely checks *whether* the workflow with the same hash has run
       # successfully in the past, restores nothing more than the file containing
       # the hash value.
-      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         id: git-result-cache
         with:
           path: .git-tree-hash
@@ -144,7 +192,7 @@ jobs:
       # Merely checks *whether* the workflow with the same hash has run
       # successfully in the past, restores nothing more than the file containing
       # the hash value.
-      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         id: partial-result-cache
         with:
           path: .partial-tree-hash
@@ -157,6 +205,19 @@ jobs:
           echo "${result}"
           echo "${result}" >> $GITHUB_OUTPUT
 
+      # Allows us to clean up even if build fails
+      - name: Cache with post-job cleanup
+        if: steps.should-skip.outputs.result != 'true' && runner.environment == 'self-hosted'
+        uses: gacts/run-and-post-run@81b6ce503cde93862cec047c54652e45c5dca991 # v1
+        with:
+          run: |
+            export  RUST_LOG=trace
+            cache-thing pull -f build -f /home/runner/.cargo/git -f /home/runner/.cargo/registry --prefix global --suffix "${{ matrix.partition }}" --fallback-key nightly || true
+
+          post: |
+            export  RUST_LOG=trace
+            cache-thing clean --prefix global --suffix "${{ matrix.partition }}" || true
+
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule' && steps.should-skip.outputs.result != 'true'
         run: |
@@ -165,7 +226,7 @@ jobs:
 
             echo "$hal_contexts" | tr ',' '\n' | grep -v "^context::${1}$" | paste -sd ','
           }
-          case '${{ needs.check-labels.outputs.label }}' in
+          case "${LABEL}" in
             'ci-build:esp')
               echo "NEEDS_XTENSA_TOOLCHAIN=1" >> "$GITHUB_ENV"
               echo "LAZE_DISABLE=$(allow_context esp)" >> "$GITHUB_ENV"
@@ -185,7 +246,7 @@ jobs:
               ;;
             'ci-build:small')
               echo "NEEDS_XTENSA_TOOLCHAIN=1" >> "$GITHUB_ENV"
-              echo "LAZE_BUILDERS=ai-c3,espressif-esp32-devkitc,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-devkitc-1,bbc-microbit-v2,native,nrf52840dk,nrf5340dk-app,rpi-pico,rpi-pico-w,st-nucleo-c031c6,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
+              echo "LAZE_BUILDERS=espressif-esp32-devkitc,espressif-esp32-c3-devkit-rust-1,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-devkitc-1,bbc-microbit-v2,native,nrf52840dk,nrf5340dk-app,rpi-pico,rpi-pico-w,st-nucleo-c031c6,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
               ;;
             'ci-build:stm32')
               echo "LAZE_DISABLE=$(allow_context stm32)" >> "$GITHUB_ENV"
@@ -196,55 +257,60 @@ jobs:
               exit 1
               ;;
           esac
+        env:
+          LABEL: ${{ needs.check-labels.outputs.label }}
 
       - id: get_toolchain
         if: steps.should-skip.outputs.result != 'true'
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install nightly toolchain
-        if: steps.should-skip.outputs.result != 'true'
-        uses: dtolnay/rust-toolchain@master
+        if: steps.should-skip.outputs.result != 'true' && runner.environment != 'self-hosted'
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           targets: riscv32imc-unknown-none-elf,riscv32imac-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi,thumbv7em-none-eabihf,thumbv8m.main-none-eabi,thumbv8m.main-none-eabihf
           # rust-src: Used for -Zbuild-std.
           # rustfmt: Used by bindgen for liboscore
-          components: rust-src, rustfmt
+          # llvm-tools: Used by nrf-modem
+          components: rust-src, rustfmt, llvm-tools
 
       - name: Install stable toolchain
-        if: steps.should-skip.outputs.result != 'true'
+        if: steps.should-skip.outputs.result != 'true' && runner.environment != 'self-hosted'
         # configure MSRV here:
-        uses: dtolnay/rust-toolchain@1.91.1
+        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # master
         with:
+          toolchain: 1.94
           targets: riscv32imc-unknown-none-elf,riscv32imac-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi,thumbv7em-none-eabihf,thumbv8m.main-none-eabi,thumbv8m.main-none-eabihf
           # rust-src: Used for -Zbuild-std.
           # rustfmt: Used by bindgen for liboscore
-          components: rust-src, rustfmt
+          # llvm-objcopy: Used by nrf-modem
+          components: rust-src, rustfmt, llvm-tools
 
       - name: Install Rust for Xtensa
-        if: steps.should-skip.outputs.result != 'true' && (github.event_name == 'schedule' || env.NEEDS_XTENSA_TOOLCHAIN == '1')
+        if: steps.should-skip.outputs.result != 'true' && (github.event_name == 'schedule' || env.NEEDS_XTENSA_TOOLCHAIN == '1') && runner.environment != 'self-hosted'
         # No tag yet after https://github.com/esp-rs/xtensa-toolchain/pull/38 (will probably be @v1.5.5)
-        uses: esp-rs/xtensa-toolchain@main
+        uses: esp-rs/xtensa-toolchain@ec6d36527049a7f4fb2cb0c1a644668c1bb8a2a4 # main
         with:
-          version: "1.91.1.0"
+          version: "1.94.0.2"
           buildtargets: esp32,esp32s2,esp32s3
           override: false
           export: false
 
       - name: rust cache
-        if: steps.should-skip.outputs.result != 'true'
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+        if: steps.should-skip.outputs.result != 'true' && runner.environment != 'self-hosted'
         with:
           key: "${{ matrix.partition }}"
 
       - name: Install laze
-        uses: taiki-e/install-action@870266878ed54ea9ceb25502c53e42aa939585a6 # v2
-        if: steps.should-skip.outputs.result != 'true'
+        uses: taiki-e/install-action@a37010ded18ff788be4440302bd6830b1ae50d8b # v2
+        if: steps.should-skip.outputs.result != 'true' && runner.environment != 'self-hosted'
         with:
           tool: laze@0.1
 
       - name: "installing prerequisites"
-        if: steps.should-skip.outputs.result != 'true'
+        if: steps.should-skip.outputs.result != 'true' && runner.environment != 'self-hosted'
         run: sudo apt-get install ninja-build gcc-arm-none-eabi gcc-riscv64-unknown-elf
 
       - name: "Show installed versions"
@@ -266,6 +332,21 @@ jobs:
           sha256sum /usr/lib/llvm-*/lib/clang/*/include/stdint.h
           true
 
+      # Allows to reuse more cache
+      - name: Touch file time to commits time
+        if: steps.should-skip.outputs.result != 'true' && runner.environment == 'self-hosted'
+        # https://stackoverflow.com/questions/21735435/git-clone-changes-file-modification-time
+        run: |
+            git ls-tree -r --name-only HEAD | while read filename; do
+              unixtime=$(git log -1 --format="%at" -- "${filename}")
+              touchtime=$(date -d @$unixtime +'%Y%m%d%H%M.%S')
+              touch -t ${touchtime} "${filename}"
+            done
+      - name: "start sccache daemon"
+        if: steps.should-skip.outputs.result != 'true' && runner.environment == 'self-hosted'
+        # work around https://github.com/ninja-build/ninja/issues/2052
+        run: sccache --start-server || true
+
       - name: "ariel-os compilation test (default toolchain)"
         if: steps.should-skip.outputs.result != 'true'
         run: |
@@ -280,12 +361,16 @@ jobs:
         run: |
           mv build build.tmp && rm -rf build.tmp &
 
-      # nightly build, nightly toolchain
+      # nightly build, nightly toolchain, no cache for this one
       # (disabling xtensa here as it gets built by the default toolchain build above)
       - name: "ariel-os compilation test (nightly toolchain)"
         if: github.event_name == 'schedule' && steps.should-skip.outputs.result != 'true'
         run: |
           CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build -DCARGO_ARGS+='--locked' --global --partition hash:${{ matrix.partition }} --select nightly --disable xtensa
+
+      - name: show sccache stats
+        if: runner.environment == 'self-hosted'
+        run: sccache --show-stats
 
   build-success:
     if: ${{ always() }}
@@ -294,12 +379,14 @@ jobs:
     needs: [build, check-labels]
     steps:
       - run: |
-          result="${{ needs.build.result }}"
+          result="${BUILD_RESULT}"
           if [[ $result == "success" || $result == "skipped" ]]; then
             exit 0
           else
             exit 1
           fi
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
 
       - name: Report nightly failure
         if: failure() && github.event_name == 'schedule' && github.repository == 'ariel-os/ariel-os'

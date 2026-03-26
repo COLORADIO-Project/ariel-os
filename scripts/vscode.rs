@@ -123,15 +123,12 @@ fn main() -> miette::Result<()> {
         Value::String("test-password".to_string()),
     );
 
-    // Default to nightly so cargo-metadata can correctly read the config
-    let mut toolchain = "+nightly".to_string();
     if let Ok(toolchain_env) = std::env::var("_CARGO_TOOLCHAIN") {
-        if !toolchain_env.is_empty() {
-            toolchain = toolchain_env
+        if toolchain_env.len() > 1 {
+            let toolchain = toolchain_env[1..].to_string(); // Remove the leading '+' character
+            extra_env.insert("RUSTUP_TOOLCHAIN".to_string(), Value::String(toolchain));
         }
     }
-    let toolchain = toolchain[1..].to_string(); // Remove the leading '+' character
-    extra_env.insert("RUSTUP_TOOLCHAIN".to_string(), Value::String(toolchain));
 
     // Copy the RUSTFLAGS environment variable, without the target prefix
     if let Ok(rustflags_env) = std::env::var("_RUSTFLAGS") {

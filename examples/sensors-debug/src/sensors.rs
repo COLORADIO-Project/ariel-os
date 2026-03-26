@@ -16,7 +16,7 @@ pub async fn init() {
 mod lis2du12 {
     use ariel_os::i2c::controller::I2cDevice;
 
-    pub static LIS2DU12_I2C: ariel_os_sensor_lis2du12::i2c::Lis2du12<I2cDevice> =
+    pub static LIS2DU12_I2C: ariel_os_sensor_lis2du12::i2c::Lis2du12<I2cDevice<'_>> =
         const { ariel_os_sensor_lis2du12::i2c::Lis2du12::new(Some("onboard")) };
     #[ariel_os::reexports::linkme::distributed_slice(ariel_os::sensors::SENSOR_REFS)]
     #[linkme(crate = ariel_os::reexports::linkme)]
@@ -53,7 +53,7 @@ pub use lis2du12::LIS2DU12_I2C;
 mod lps22df {
     use ariel_os::i2c::controller::I2cDevice;
 
-    pub static LPS22DF_I2C: ariel_os_sensor_lps22df::i2c::Lps22df<I2cDevice> =
+    pub static LPS22DF_I2C: ariel_os_sensor_lps22df::i2c::Lps22df<I2cDevice<'_>> =
         const { ariel_os_sensor_lps22df::i2c::Lps22df::new(Some("onboard")) };
     #[ariel_os::reexports::linkme::distributed_slice(ariel_os::sensors::SENSOR_REFS)]
     #[linkme(crate = ariel_os::reexports::linkme)]
@@ -90,7 +90,7 @@ pub use lps22df::LPS22DF_I2C;
 mod stts22h {
     use ariel_os::i2c::controller::I2cDevice;
 
-    pub static STTS22H_I2C: ariel_os_sensor_stts22h::i2c::Stts22h<I2cDevice> =
+    pub static STTS22H_I2C: ariel_os_sensor_stts22h::i2c::Stts22h<I2cDevice<'_>> =
         const { ariel_os_sensor_stts22h::i2c::Stts22h::new(Some("onboard")) };
     #[ariel_os::reexports::linkme::distributed_slice(ariel_os::sensors::SENSOR_REFS)]
     #[linkme(crate = ariel_os::reexports::linkme)]

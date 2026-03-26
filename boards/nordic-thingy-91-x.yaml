@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   nordic-thingy-91-x-nrf9151:
     chip: nrf9151
     leds:
@@ -17,6 +18,8 @@ boards:
 
   nordic-thingy-91-x-nrf5340-app:
     chip: nrf5340-app
+    flags:
+      - has_usb_device_port
     leds:
       led0:
         pin: P0_14

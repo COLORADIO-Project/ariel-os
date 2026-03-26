@@ -3,6 +3,7 @@
 
 - [Adafruit Feather nRF52840 Express](./adafruit-feather-nrf52840-express.md)
 - [Adafruit Feather nRF52840 Sense](./adafruit-feather-nrf52840-sense.md)
+- [Arduino UNO Q](./arduino-uno-q.md)
 - [BBC micro:bit V1](./bbc-micro-bit-v1.md)
 - [BBC micro:bit V2](./bbc-micro-bit-v2.md)
 - [native](./native.md)
@@ -24,6 +25,7 @@
 - [Espressif ESP32-S3-DevKitC-1](./espressif-esp32-s3-devkitc-1.md)
 - [Heltec WiFi LoRa 32 V3](./heltec-wifi-lora-32-v3.md)
 - [Seeed Studio XIAO ESP32C6](./seeed-studio-xiao-esp32c6.md)
+- [Seeed Studio XIAO NRF52840 Plus](./seeed-studio-xiao-nrf52840-plus.md)
 - [Seeed Studio LoRa-E5 mini](./seeed-studio-lora-e5-mini.md)
 - [ST B-L475E-IOT01A](./st-b-l475e-iot01a.md)
 - [ST NUCLEO-C031C6](./st-nucleo-c031c6.md)
@@ -35,5 +37,7 @@
 - [ST NUCLEO-H755ZI-Q](./st-nucleo-h755zi-q.md)
 - [ST NUCLEO-WB55RG](./st-nucleo-wb55rg.md)
 - [ST NUCLEO-WBA55CG](./st-nucleo-wba55cg.md)
+- [ST NUCLEO-WBA65RI](./st-nucleo-wba65ri.md)
 - [ST STEVAL-MKBOXPRO](./st-steval-mkboxpro.md)
 - [STM32U083C-DK](./stm32u083c-dk.md)
+- [Unihiker K10](./unihiker-k10.md)

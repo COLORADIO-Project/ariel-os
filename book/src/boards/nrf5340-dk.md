@@ -7,6 +7,7 @@
 ## laze Builders
 
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
+
 ### `nrf5340dk-app`
 
 - **Tier:** 1
@@ -35,6 +36,7 @@ laze build -b nrf5340dk-app
 |Bluetooth Low Energy|<span title="not available on this piece of hardware">–</span>|
 |Hardware Random Number Generator|<span title="available in hardware, but not currently supported by Ariel OS">❌</span>[^no-standalone-rng-in-the-application-core-only-in-the-cryptocell-which-is-not-currently-supported]|
 |Persistent Storage|<span title="supported">✅</span>|
+
 ### `nrf5340dk-net`
 
 - **Tier:** 1

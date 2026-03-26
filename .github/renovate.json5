@@ -56,20 +56,26 @@
       "matchPackageNames" : [ "/^.*stm32.*/i" ],
       "labels": ["ci-build:stm32"]
     },
-    // Packages that end wuth -rp will get a ci-build:rp label
+    // Packages that end with -rp will get a ci-build:rp label
     {
       "matchPackageNames" : [ "/^.*-rp$/i" ],
       "labels": ["ci-build:rp"]
     },
-    // GHA updates skip build CI
+    // GHA updates skip build CI and the changelog
     {
       "matchManagers": ["github-actions"],
+      "labels": ["ci-build:skip", "changelog:skip"]
+    },
+    // Nothing updates i.e. version/digest pinning skip build CI
+    {
+      "matchUpdateTypes": ["pinDigest", "pin"],
       "labels": ["ci-build:skip"]
     },
-    // Nothing updates i.e. version/digest pinning and digest update also skip build CI
+    // Cargo Crates that have a pinned rev probably can't correctly be updated by renovate
     {
-      "matchUpdateTypes": ["pinDigest", "pin", "digest"],
-      "labels": ["ci-build:skip"]
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["digest"],
+      enabled: false
     }
   ],
   // Add a 'renovate' label to every PR for the matrix bot

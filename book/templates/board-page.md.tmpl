@@ -9,6 +9,7 @@
 For more information on laze builders, check out [this page](../build-system.md#laze-builders).
 
 {%- for builder in board_info.builders %}
+
 ### `{{ builder.technical_name }}`
 
 - **Tier:** {{ builder.tier }}
@@ -28,6 +29,13 @@ laze build -b {{ builder.technical_name }}
 {%- for functionality in builder.functionalities %}
 |{{ functionality.title }}|<span title="{{ functionality.description }}">{{ functionality.icon }}</span>{%- if functionality.comments %}{%- for comment in functionality.comments %}[^{{ comment|slugify }}]{%- endfor %}{%- endif %}|
 {%- endfor %}
+
+{%- if builder.notes %}
+
+#### Additional Notes
+
+{{ builder.notes }}
+{%- endif %}
 {%- endfor %}
 
 <p>Legend:</p>

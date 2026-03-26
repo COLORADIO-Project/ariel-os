@@ -1,4 +1,5 @@
-boards:
+version: 0.3.0
+targets:
   espressif-esp32-devkitc:
     chip: esp-wroom-32
     buttons:

@@ -1,6 +1,6 @@
 [package]
 name = "ariel-os"
-version = "0.3.0"
+version = "0.4.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -27,6 +27,7 @@ ariel-os-embassy = { path = "../ariel-os-embassy" }
 ariel-os-hal = { workspace = true }
 ariel-os-identity = { workspace = true }
 ariel-os-macros = { path = "../ariel-os-macros" }
+ariel-os-nrf = { path = "../ariel-os-nrf", optional = true }
 ariel-os-power = { path = "../ariel-os-power" }
 ariel-os-random = { workspace = true, optional = true }
 ariel-os-rt = { path = "../ariel-os-rt" }
@@ -55,7 +56,8 @@ threading = [
   "ariel-os-embassy/threading",
   "ariel-os-rt/threading",
 ]
-## Enables the internal executor's timer queue, required for timer support.
+## Enables timing functionality.
+## Currently: Additionally enables the HAL-specific time driver.
 time = ["ariel-os-embassy/time"]
 # Enables the [`random`] module.
 random = ["dep:ariel-os-random", "ariel-os-embassy/random"]
@@ -155,7 +157,7 @@ wifi-cyw43 = ["ariel-os-embassy/wifi-cyw43"]
 # Selects Wi-Fi (on ESP chips).
 wifi-esp = ["ariel-os-embassy/wifi-esp"]
 # Selects STM32 Ethernet
-eth-stm32 = ["ariel-os-embassy/eth-stm32"]
+ethernet-stm32 = ["ariel-os-embassy/ethernet-stm32"]
 # Selects the network backend that goes through tun/tap (native only).
 tuntap = ["ariel-os-embassy/tuntap"]
 
@@ -163,13 +165,17 @@ tuntap = ["ariel-os-embassy/tuntap"]
 ble = ["ariel-os-embassy/ble"]
 # Selects BLE (with the CYW43 chip).
 ble-cyw43 = ["ariel-os-embassy/ble-cyw43"]
-# Enables BLE to act as a peripheral. Can be used in conjunction with `ble-central`.
-ble-peripheral = ["ariel-os-embassy/ble-peripheral", "ble"]
+# Selects BLE (on ESP chips).
+ble-esp = ["ariel-os-embassy/ble-esp"]
 # Enables BLE to act as a central. Can be used in conjunction with `ble-peripheral`.
 ble-central = ["ariel-os-embassy/ble-central", "ble"]
+# Enables BLE to act as a peripheral. Can be used in conjunction with `ble-central`.
+ble-peripheral = ["ariel-os-embassy/ble-peripheral", "ble"]
 
 # ## Enables support for the nRF91xx SiP modem.
 nrf91-modem = ["ariel-os-embassy/nrf91-modem", "ariel-os-rt/nrf91-modem"]
+# Adjusts nRF modem (or related components) to assume that there is the DECT firmware running on the radio core.
+nrf-radiocore-firmware-dect = ["ariel-os-nrf/radiocore-firmware-dect"]
 
 #! ## Timer queue size configuration
 #! Should only be enabled when threading is enabled, too.
