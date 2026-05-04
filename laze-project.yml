@@ -429,6 +429,7 @@ contexts:
     provides:
       - has_ble_esp
       - sw/benchmark
+      - has_storage_support
     provides_unique: [c-function-abort]
     env:
       RUSTC_TARGET: riscv32imac-unknown-none-elf

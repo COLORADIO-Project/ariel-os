@@ -44,6 +44,7 @@ esp-radio-rtos-driver = { workspace = true, default-features = false, features =
   "ipc-implementations",
 ], optional = true }
 esp-rom-sys = { workspace = true }
+esp-storage = { workspace = true, optional = true, features = ["esp32c6"]}
 esp-sync = { workspace = true, optional = true }
 fugit = { workspace = true, optional = true }
 paste = { workspace = true }
@@ -167,6 +168,9 @@ wifi-esp = [
   "esp-radio/wifi",
   "wifi",
 ]
+
+## Enables storage support
+storage = ["dep:esp-storage", "dep:embassy-embedded-hal"]
 
 #! ## Executor type selection for the (autostarted) main executor
 #! Exactly one of the features below must be enabled at once.
