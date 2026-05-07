@@ -1,7 +1,6 @@
 use std::{env, path::PathBuf};
 
 const KIBIBYTES: u32 = 1024;
-const MIBIBYTES: u32 = 1024 * KIBIBYTES;
 
 fn main() {
     // NOTE(hal): values of `flash_page_size` from the datasheets, confirmed by HAL's constants.
@@ -12,40 +11,40 @@ fn main() {
     let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     if is_in_current_contexts(&["esp32c6"]) {
-        // PoC assumptions:
-        // - 4 MiB flash
-        // - default factory app partition begins at 0x10000
-        // - reserve the last 64 KiB for storage
-        const FLASH_TOTAL: u32 = 4 * MIBIBYTES;
-        const APP_PARTITION_OFFSET: u32 = 0x0001_0000;
-        const STORAGE_OFFSET: u32 = 0x003F_0000; // start of last 64 KiB
-        const STORAGE_SIZE: u32 = 64 * KIBIBYTES;
-        const FLASH_PAGE_SIZE: u32 = 4 * KIBIBYTES;
-        const MMAP_BASE: u32 = 0x4200_0000;
+        let storage_offset = u32::from_str_radix(
+            env::var("ESP_STORAGE_OFFSET")
+                .expect("Missing ESP_STORAGE_OFFSET env var")
+                .trim_start_matches("0x")
+                .trim_start_matches("0X"),
+            16,
+        )
+        .expect("Invalid ESP_STORAGE_OFFSET env var");
 
-        assert_eq!(STORAGE_OFFSET % FLASH_PAGE_SIZE, 0);
-        assert_eq!(STORAGE_SIZE % FLASH_PAGE_SIZE, 0);
-        const { assert!(STORAGE_OFFSET >= APP_PARTITION_OFFSET) };
-        const { assert!(STORAGE_OFFSET + STORAGE_SIZE <= FLASH_TOTAL) };
+        let storage_size = u32::from_str_radix(
+            env::var("ESP_STORAGE_SIZE")
+                .expect("Missing ESP_STORAGE_SIZE env var")
+                .trim_start_matches("0x")
+                .trim_start_matches("0X"),
+            16,
+        )
+        .expect("Invalid ESP_STORAGE_SIZE env var");
 
-        // Note: we cannot use ".storage > FLASH INSERT AFTER .rodata"
-        // section for ESP32-C6, because that would introduce another mapped
-        // flash segment and trips the bootloader assertion.
-        //
-        // Instead we define absolute linker symbols only.
-        let vaddr_start = MMAP_BASE + (STORAGE_OFFSET - APP_PARTITION_OFFSET);
-        let vaddr_end = vaddr_start + STORAGE_SIZE;
+        let storage_end = storage_offset
+            .checked_add(storage_size)
+            .expect("ESP storage range overflows u32");
 
         let storage_x = format!(
             "\
-PROVIDE(__storage_start = 0x{vaddr_start:08x});
-PROVIDE(__storage_end   = 0x{vaddr_end:08x});
+PROVIDE(__storage_start = 0x{storage_offset:08x});
+PROVIDE(__storage_end   = 0x{storage_end:08x});
 "
         );
 
         std::fs::write(out.join("storage.x"), storage_x).unwrap();
 
         println!("cargo:rerun-if-env-changed=CARGO_CFG_CONTEXT");
+        println!("cargo:rerun-if-env-changed=ESP_STORAGE_OFFSET");
+        println!("cargo:rerun-if-env-changed=ESP_STORAGE_SIZE");
         println!("cargo:rustc-link-search={}", out.display());
         return;
     }

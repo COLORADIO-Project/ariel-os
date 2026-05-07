@@ -1149,6 +1149,15 @@ modules:
           - "-Clink-arg=-v"
         LINK_ARG_PREFIX: -Wl,
 
+  - name: espflash
+    help: use `espflash` as runner
+    provides_unique:
+      - flashing-tool
+    env:
+      global:
+        ESPFLASH_ARGS: []
+        CARGO_RUNNER: '"espflash flash ${ESPFLASH_ARGS} --monitor ${ESPFLASH_LOG_FORMAT}"'
+
   - name: probe-rs
     help: use probe-rs as runner
     selects:
@@ -1317,6 +1326,7 @@ modules:
   - name: sw/storage
     selects:
       - has_storage_support
+      - ?esp32c6-storage-partition
     env:
       global:
         FEATURES:
@@ -1327,6 +1337,21 @@ modules:
   - name: has_storage_support
     selects:
       - doc-only
+
+  - name: esp32c6-storage-partition
+    context:
+      - esp32c6
+    env:
+      global:
+        ARIEL_ESP_STORAGE_OFFSET: "0x003f0000"
+        ARIEL_ESP_STORAGE_SIZE: "0x00010000"
+        ARIEL_ESP_PARTITION_TABLE: "${relroot}/src/ariel-os-esp/partitions/esp32c6-4m-storage-64k.csv"
+        ESPFLASH_ARGS:
+          - --partition-table
+          - ${ARIEL_ESP_PARTITION_TABLE}
+        CARGO_ENV:
+          - ESP_STORAGE_OFFSET="${ARIEL_ESP_STORAGE_OFFSET}"
+          - ESP_STORAGE_SIZE="${ARIEL_ESP_STORAGE_SIZE}"
 
   - name: sw/threading
     selects:
