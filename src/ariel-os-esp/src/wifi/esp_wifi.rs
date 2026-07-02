@@ -2,7 +2,8 @@ use ariel_os_debug::log::{debug, info};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_radio::wifi::{
-    Config, ModeConfig, WifiController, WifiDevice, WifiEvent, WifiStationState, sta::StationConfig,
+    AuthMethod, Config, ModeConfig, WifiController, WifiDevice, WifiEvent, WifiStationState,
+    sta::StationConfig,
 };
 
 pub type NetworkDevice = WifiDevice<'static>;
@@ -38,11 +39,14 @@ async fn connection(mut controller: WifiController<'static>) {
         }
         if !matches!(controller.is_started(), Ok(true)) {
             debug!("Configuring Wi-Fi");
-            let client_config = ModeConfig::Station(
-                StationConfig::default()
-                    .with_ssid(crate::wifi::WIFI_NETWORK.try_into().unwrap())
-                    .with_password(crate::wifi::WIFI_PASSWORD.try_into().unwrap()),
-            );
+            let station_config =
+                StationConfig::default().with_ssid(crate::wifi::WIFI_NETWORK.try_into().unwrap());
+            let station_config = if crate::wifi::WIFI_PASSWORD.is_empty() {
+                station_config.with_auth_method(AuthMethod::None)
+            } else {
+                station_config.with_password(crate::wifi::WIFI_PASSWORD.try_into().unwrap())
+            };
+            let client_config = ModeConfig::Station(station_config);
             controller.set_config(&client_config).unwrap();
             debug!("Starting Wi-Fi");
             controller.start_async().await.unwrap();
